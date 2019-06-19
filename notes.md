@@ -132,4 +132,155 @@ Since I want to run an nginxdemo container on Azure K8s, I think this is the pla
 to start. Once I get the hang of this, it'll be time to apply the first half of
 the lessons above to Pipeline the process. I think.
 
+## Setting up the .tf File
 
+I will also need a .tf file - which I have copied from Hashicorp [here](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
+and modified to the way I want my Cluster.
+
+I've named it "nginxdemocluster.tf", and put it inside a folder named "terraform".
+
+Inside the template there are a couple of "Secrets" under the service_principal section - I will pre- and suffix
+these with "__" per the original tutorial and add a "Replace Variables" task to the pipeline.
+
+``` terraform
+  service_principal {
+    client_id     = "__clientid__"
+    client_secret = "__clientsecret__"
+  }
+```
+
+## Pipeline Setup
+
+First, I need to create a Terraform Pipeline in my new "terraform-aks-pipelines" project in AzDo.
+
+Judging from the Tutorial, I first need to copy my Terraform files to "build artifacts" to make them available in the CD
+pipeline...
+
+1. Having created and named the Project in AzDo. I navigate to **Pipelines -> Pipelines**, then click
+**Create Pipeline**
+
+2. I choose **Use the classic editor** under **Where is your code?**
+
+3. Under **Select a source** I choose **GitHub**, leave the default name of "GitHub connection 1", then
+**Authorize using OAuth**
+
+4. Next I choose the Repository (terraform-aks-pipelines) and default Branch (Develop) and click **Continue**
+
+5. Choose **Empty job** from the top.
+
+6. Leave **Hosted VS2017** as the Agent pool - this will cost, so tidy up afterwards! I'm also happy with the
+suggested Name of "terraform-aks-pipelines-CI"
+
+7. Next to **Agent Job 1**, click the **+**,type "copy" into the Search field and Add the "Copy files" task.
+
+8. I click on the "Copy Files to:" task, then: 
+    - Change the **Display name** to "Copy Terraform files to artifacts"
+    - Specify the "terraform" folder on my Repo as the **Source Folder**
+    - Leave the **Contents** as ** because I want everything (there's only 1 file)
+    - Change the **Target folder** to `$(build.artifactstagingdirectory)/Terraform`
+
+9. Click the **Save & queue** drop-down and **Save**
+
+10. Repeat step 7 but search for "publish build" and add **Publish build artifacts** task - nothing needs changing
+
+11. Click **Queue**
+
+12. When that finishes, take a look at Artifacts published, inside the **Drop/Terraform** folder you should find the
+nginxdemocluster.tf file.
+
+So we've set up the environment from which Terraform can build the cluster we want. Later I'll add more suporting
+files to allow us to deploy the nginxdemo itself to the K8s cluster.
+
+## Setting up the Build Pipeline
+
+1. Navigate to **Pipelines -> Releases** and click **New pipeline**
+
+2. Choose **Empty job** at the top
+
+3. Stage name - something descriptive - I'll go with **Dev** - click the X at top-right to close
+
+4. Click **+Add an artifact button**
+        - **Source (build pipeline)**: "terraform-aks-pipelines-CI"
+        - **Default version**: Specify at the time of release creation
+        - The rest should be auto-completed.
+        - Click **Add**
+
+5. Click on the ***n* job, *n* task** link to start adding tasks
+
+Per the Tutorial, we are going to use the Azure CLI to create some persistent storage in order to use Terraform's
+*remote state* capability - this is so that members of a collaborative team can be assured they are all working
+from the same state file without having to re-download it locally every time.
+
+6. Click the **+** symbol at the end of the **Agent job** line, type "Azure CLI" in the search...
+        - Click **Add** on the **Azure CLI** result
+        - Click to expand the Properties of the Task
+        - **Display name**: "Azure CLI to deploy Storage for Terraform Remote"
+        - **Azure Subscription**: `your Azure subscription`
+        - **Script Location**: Inline script
+        - **Inline Script**: as below...
+
+```powershell
+# the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
+
+call az group create --location westus --name $(terraformstoragerg)
+
+call az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location westus --sku Standard_LRS
+
+call az storage container create --name terraform --account-name $(terraformstorageaccount)
+```
+
+7. Click the **+** symbol again, type "Azure power" in the search...
+    - Click **Add** on the **Azure PowerShell** result
+    - Click to expand the Properties of the Task
+    - **Display name**: "Azure PowerShell script to get Storage Key"
+    - **Azure Subscription**: `your Azure subscription`
+    - **Script Type**: Inline script
+    - **Inline Script**: as below...
+    - **Azure PowerShell Version**: Latest installed version
+
+```powershell
+# Using this script we will fetch the storage key which is required in our Terraform file to authenticate to the backend storage account
+
+$key=(Get-AzureRmStorageAccountKey -ResourceGroupName $(terraformstoragerg) -AccountName $(terraformstorageaccount)).Value[0]
+
+Write-Host "##vso[task.setvariable variable=storagekey]$key"
+```
+
+8. Now we need to create a Service Principal to allow RBAC for Terraform to build the K8s Cluster
+    - NOTE: We only need to do this once per complete test
+    - Log in to Azure CLI using az login
+    - Run the following:
+    - `az ad sp create-for-rbac --name ServicePrincipaName --password StrongPassword`
+    - Click the **Variables** header at the top of the screen and add the following (click **+ Add**):
+    - **Name**: clientid | **Value**: *ServicePrincipalName*
+    - **Name**: clientsecret | **Value**: *StrongPassword*
+    - Hopefully you established that the Values are copied/pasted from whatever you specified in the command.
+    - We also need to add a Variable to contain the Storage Key we're planning to get, so let's do this now -
+    we can see that the Inline Script calls it `storagekey` so...
+    - **Name**: storagekey | **Value**: willbefetchedbyscript
+    - Since I noticed we don't actually have anything mentioning Terraform Remote in our own .tf file, I copied
+    the definition for it from the Tutorial (see below) - which means adding more variables...
+    - **Name**: terraformstorageaccount | **Value**: terraformstoragesteevaavoo22f79
+    - **Name**: terraformstoragerg | **Value**: terraformrg (no idea where this is used...)
+
+9. We're done with Variables for now, so click Tasks to return to our Task view
+
+10. Click the **+** symbol again, type "replace tokens" in the search...
+    - Click **Add** on the **Replace Tokens** result
+    - **Display Name**: "Replace tokens in ++/+.tf"
+    - Target files: **/*.tf
+    - Click to expand **Advanced**
+    - **Token prefix**: __
+    - **Token suffix**: __
+    - NOTE: This means the Token Replace will search for `__clientid__` and `__clientsecret__` given how we've named
+    them in the Variables section. It will also search for `__storagekey__` which is used to create the Backend
+    to store Terraform Remote state, and `__terraformstorageaccount__` for the storage for tf remote state. As yet
+    I don't quite know how `__terraformrg__` will be applied...
+
+11. Click the **+** symbol again, type "terraform" in the search...
+    - Click **Add** on the **Run Terraform** result THREE TIMES
+    - TO BE CONTINUED...
+    
+12. Click **Save**, add any comments, then **OK**
+
+13. **Create release**, pray, wait...
