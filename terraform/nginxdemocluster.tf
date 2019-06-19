@@ -1,13 +1,13 @@
-resource "steevaavoo_resource_group" "test" {
-  name     = "acctestRG1"
+resource "azurerm_resource_group" "steevaavoo" {
+  name     = "steevaavooRG1"
   location = "East US"
 }
 
-resource "steevaavoo_kubernetes_cluster" "test" {
-  name                = "acctestaks1"
-  location            = "${steevaavoo_resource_group.test.location}"
-  resource_group_name = "${steevaavoo_resource_group.test.name}"
-  dns_prefix          = "acctestagent1"
+resource "azurerm_kubernetes_cluster" "steevaavoo" {
+  name                = "steevaavooaks1"
+  location            = "${azurerm_resource_group.steevaavoo.location}"
+  resource_group_name = "${azurerm_resource_group.steevaavoo.name}"
+  dns_prefix          = "steevaavooagent1"
 
   agent_pool_profile {
     name            = "default"
@@ -16,7 +16,6 @@ resource "steevaavoo_kubernetes_cluster" "test" {
     os_type         = "Linux"
     os_disk_size_gb = 30
   }
-
   service_principal {
     client_id     = "__clientid__"
     client_secret = "__clientsecret__"
@@ -28,9 +27,9 @@ resource "steevaavoo_kubernetes_cluster" "test" {
 }
 
 output "client_certificate" {
-  value = "${steevaavoo_kubernetes_cluster.test.kube_config.0.client_certificate}"
+  value = "${azurerm_kubernetes_cluster.steevaavoo.kube_config.0.client_certificate}"
 }
 
 output "kube_config" {
-  value = "${steevaavoo_kubernetes_cluster.test.kube_config_raw}"
+  value = "${azurerm_kubernetes_cluster.steevaavoo.kube_config_raw}"
 }
