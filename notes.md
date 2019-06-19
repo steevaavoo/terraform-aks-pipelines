@@ -1,6 +1,8 @@
-# Part 1 - The Tutorial
+# Terraform, AKS and Azure Pipelines
 
-## Exercise 1: Azure DevOps Demo Generator & the Terraform file
+## Part 1 - The Tutorial
+
+### Exercise 1: Azure DevOps Demo Generator & the Terraform file
 
 1. Log in to the [Azure DevOps Demo Generator](https://azuredevopsdemogenerator.azurewebsites.net/environment/createproject)
 and set up the details of my project. I went with "terraform-pipeline-tutorial".
@@ -24,7 +26,7 @@ and set up the details of my project. I went with "terraform-pipeline-tutorial".
     In this particular file, we are specifying an Azure Resource Group. Then an App service plan and an App service - 
     which are required to deploy the website.
 
-## Exercise 2: Build Application using Azure CI* Pipeline
+### Exercise 2: Build Application using Azure CI* Pipeline
 
 *Continuous Integration - [more info](https://docs.microsoft.com/en-us/azure/devops/learn/what-is-continuous-integration)
 
@@ -50,7 +52,7 @@ an adjacent window.
 
     I found both. This would appear to be good news.
 
-# Exercise 3: Deploy resources using Terraform (IaC) in Azure CD pipeline
+### Exercise 3: Deploy resources using Terraform (IaC) in Azure CD pipeline
 
 (They make it sound so easy!)
 
@@ -67,14 +69,17 @@ to go through.
 that will be used to store the Terraform State - this helps when working in a team, as Terraform would otherwise
 store the State locally on your computer. [More information on remote state](https://www.terraform.io/docs/state/remote.html).
 
-4. Select **Azure Resource Manager** from the **Azure Connection Type**, then your Azure Subscription from "Available Azure Service Connections" in the **Azure PowerShell script to get the storage key** job.
+4. Select **Azure Resource Manager** from the **Azure Connection Type**, then your Azure Subscription from
+   "Available Azure Service Connections" in the **Azure PowerShell script to get the storage key** job.
 
     This script will fetch the backend storage key into a $key variable. Then it will use a "write-host"
-    command, which is more than meets the eye here. It's using a Visual Studio Online (`##vso`) command to set a variable called "storagekey" during build time, which you can see referenced in the **Variables**
+    command, which is more than meets the eye here. It's using a Visual Studio Online (`##vso`) command to set
+    a variable called "storagekey" during build time, which you can see referenced in the **Variables**
     section, named "storagekey" - it's one which is not predetermined - as you can see the value is initially
     set as "PipelineWillGetThisValueRuntime" - cunning!
 
-5. Look at the **Replace tokens...** task - you'll see that this is looking for all files with a .tf extension in all folders (**/*.tf) - then, expanding "Advanced", you can see it's looking for a prefix and suffix of "__".
+5. Look at the **Replace tokens...** task - you'll see that this is looking for all files with a .tf extension in
+   all folders (**/*.tf) - then, expanding "Advanced", you can see it's looking for a prefix and suffix of "__".
 
     If you look at the webapp.tf file itself, you'll see a few values with those pre- and suffixes. These are
 going to be replaced with the variable values defined in the release pipeline - click **Variables** at the top
@@ -126,21 +131,22 @@ Very nice. Not fast, since it's free, but hey!
 
 Now how do I make my own version...?
 
-## Deploying an Azure K8s Cluster (AKS) with Terraform
+## Part 2: Deploying an Azure K8s Cluster (AKS) with Terraform
 
-Since I want to run an nginxdemo container on Azure K8s, I think this is the place
-to start. Once I get the hang of this, it'll be time to apply the first half of
-the lessons above to Pipeline the process. I think.
+Now to see if I can take the above and modify it to work for my own purposes...
 
-## Setting up the .tf File
+### Setting up the .tf File
 
-I will also need a .tf file - which I have copied from Hashicorp [here](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
-and modified to the way I want my Cluster.
+I will need a .tf file - which I have copied from Hashicorp [here](https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html)
+and modified to reflect the way I want my Cluster to be configured (2 nodes, basically).
 
 I've named it "nginxdemocluster.tf", and put it inside a folder named "terraform".
 
 Inside the template there are a couple of "Secrets" under the service_principal section - I will pre- and suffix
 these with "__" per the original tutorial and add a "Replace Variables" task to the pipeline.
+
+There are more Variables in the Template, which are used to create backend storage for Terraform *remote state* - I
+will give further information on these later in the notes.
 
 ``` terraform
   service_principal {
@@ -149,12 +155,12 @@ these with "__" per the original tutorial and add a "Replace Variables" task to 
   }
 ```
 
-## Pipeline Setup
+### Pipeline Setup
 
 First, I need to create a Terraform Pipeline in my new "terraform-aks-pipelines" project in AzDo.
 
-Judging from the Tutorial, I first need to copy my Terraform files to "build artifacts" to make them available in the CD
-pipeline...
+Judging from the Tutorial, I first need to copy my Terraform files to "build artifacts" to make them available in
+the CD pipeline...
 
 1. Having created and named the Project in AzDo. I navigate to **Pipelines -> Pipelines**, then click
 **Create Pipeline**
@@ -169,7 +175,7 @@ pipeline...
 5. Choose **Empty job** from the top.
 
 6. Leave **Hosted VS2017** as the Agent pool - this will cost, so tidy up afterwards! I'm also happy with the
-suggested Name of "terraform-aks-pipelines-CI"
+suggested Name of "terraform-aks-pipelines-CI" (Continuous Integration)
 
 7. Next to **Agent Job 1**, click the **+**,type "copy" into the Search field and Add the "Copy files" task.
 
@@ -188,10 +194,10 @@ suggested Name of "terraform-aks-pipelines-CI"
 12. When that finishes, take a look at Artifacts published, inside the **Drop/Terraform** folder you should find the
 nginxdemocluster.tf file.
 
-So we've set up the environment from which Terraform can build the cluster we want. Later I'll add more suporting
+So we've set up the environment from which Terraform can build the cluster we want. Later I'll add more supporting
 files to allow us to deploy the nginxdemo itself to the K8s cluster.
 
-## Setting up the Build Pipeline
+### Setting up the Releases (Build) Pipeline
 
 1. Navigate to **Pipelines -> Releases** and click **New pipeline**
 
@@ -199,7 +205,7 @@ files to allow us to deploy the nginxdemo itself to the K8s cluster.
 
 3. Stage name - something descriptive - I'll go with **Dev** - click the X at top-right to close
 
-4. Click **+Add an artifact button**
+4. Click **+Add an artifact** button
         - **Source (build pipeline)**: "terraform-aks-pipelines-CI"
         - **Default version**: Specify at the time of release creation
         - The rest should be auto-completed.
@@ -233,7 +239,7 @@ call az storage container create --name terraform --account-name $(terraformstor
     - Click **Add** on the **Azure PowerShell** result
     - Click to expand the Properties of the Task
     - **Display name**: "Azure PowerShell script to get Storage Key"
-    - **Azure Subscription**: `your Azure subscription`
+    - **Azure Subscription**: \<your Azure subscription\>
     - **Script Type**: Inline script
     - **Inline Script**: as below...
     - **Azure PowerShell Version**: Latest installed version
@@ -250,37 +256,64 @@ Write-Host "##vso[task.setvariable variable=storagekey]$key"
     - NOTE: We only need to do this once per complete test
     - Log in to Azure CLI using az login
     - Run the following:
-    - `az ad sp create-for-rbac --name ServicePrincipaName --password StrongPassword`
+    - `az ad sp create-for-rbac --name <ServicePrincipaName> --password <StrongPassword>`
     - Click the **Variables** header at the top of the screen and add the following (click **+ Add**):
-    - **Name**: clientid | **Value**: *ServicePrincipalName*
-    - **Name**: clientsecret | **Value**: *StrongPassword*
+    - **Name**: clientid | **Value**: \<__http://__*ServicePrincipalName*\> - note the **http://** is required when
+    referring to the SPN
+    - **Name**: clientsecret | **Value**: \<YourStrongPassword\>
     - Hopefully you established that the Values are copied/pasted from whatever you specified in the command.
     - We also need to add a Variable to contain the Storage Key we're planning to get, so let's do this now -
     we can see that the Inline Script calls it `storagekey` so...
     - **Name**: storagekey | **Value**: willbefetchedbyscript
     - Since I noticed we don't actually have anything mentioning Terraform Remote in our own .tf file, I copied
     the definition for it from the Tutorial (see below) - which means adding more variables...
-    - **Name**: terraformstorageaccount | **Value**: terraformstoragestv22f79
-    - **Name**: terraformstoragerg | **Value**: terraformrg (no idea where this is used...)
+    - **Name**: terraformstorageaccount | **Value**: terraformstoragestv22f79 <- there are [requirements](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-storage-account-name-errors)
+    for the Storage Account name (this is used by Terraform to add Storage to the Resource Group created by the
+    Azure CLI task - see below)
+    - **Name**: terraformstoragerg | **Value**: terraformrg <- used by Azure CLI Task during backend storage
+    creation - also subject to character limits - see overall [Azure Naming Conventions](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions)
 
 9. We're done with Variables for now, so click Tasks to return to our Task view
 
 10. Click the **+** symbol again, type "replace tokens" in the search...
     - Click **Add** on the **Replace Tokens** result
-    - **Display Name**: "Replace tokens in ++/+.tf"
+    - **Display Name**: "Replace tokens in **/*.tf"
     - Target files: **/*.tf
     - Click to expand **Advanced**
     - **Token prefix**: __
     - **Token suffix**: __
     - NOTE: This means the Token Replace will search for `__clientid__` and `__clientsecret__` given how we've named
     them in the Variables section. It will also search for `__storagekey__` which is used to create the Backend
-    to store Terraform Remote state, and `__terraformstorageaccount__` for the storage for tf remote state. As yet
-    I don't quite know how `__terraformrg__` will be applied...
+    to store Terraform Remote state, and `__terraformstorageaccount__` for the storage for tf remote state.
+    `__terraformrg__`  is used by the PowerShell CLI Task to create a Resource Group for the backend storage created
+    in the Terraform file.
 
 11. Click the **+** symbol again, type "terraform" in the search...
     - Click **Add** on the **Run Terraform** result THREE TIMES
-    - TO BE CONTINUED...
+    - First, these values need to be added to ALL THREE Terraform Tasks:
+        - **Terraform template path**: $(System.DefaultWorkingDirectory)/**/drop/Terraform
+            - This is very generalised - because selecting the file specifically will fail to find the file. **AAW**
+        - - [x] **Install Terraform**
+        - **Terraform Version**: latest
+        - - [x] **Use Azure service principal endpoint**
+        - **Azure Connection Type**: Azure Resource Manager
+        - **Azure Subscription**: \<your azure subscription\>
+    - Now, add/rename the Terraform tasks top-to-bottom, as follows:
+        - **Top**
+        - **Display name**: Terraform init
+        - **Terraform arguments**: init
+        - **Middle**
+        - **Display name**: Terraform plan
+        - **Terraform arguments**: plan
+        - **Bottom**
+        - **Display name**: Terraform apply -auto-approve
+        - **Terraform arguments**: apply -auto-approve
     
 12. Click **Save**, add any comments, then **OK**
 
-13. **Create release**, pray, wait...
+13. Click **Create release**
+    - Next to **\terraform-aks-pipelines-CI** choose the latest version
+    - Add a **Release description** if wanted
+    - Click **Create**
+
+## Next: Deploying the nginxdemo App to the Cluster
