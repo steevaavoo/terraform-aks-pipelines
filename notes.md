@@ -260,7 +260,7 @@ Write-Host "##vso[task.setvariable variable=storagekey]$key"
     - **Name**: storagekey | **Value**: willbefetchedbyscript
     - Since I noticed we don't actually have anything mentioning Terraform Remote in our own .tf file, I copied
     the definition for it from the Tutorial (see below) - which means adding more variables...
-    - **Name**: terraformstorageaccount | **Value**: terraformstoragesteevaavoo22f79
+    - **Name**: terraformstorageaccount | **Value**: terraformstoragestv22f79
     - **Name**: terraformstoragerg | **Value**: terraformrg (no idea where this is used...)
 
 9. We're done with Variables for now, so click Tasks to return to our Task view
