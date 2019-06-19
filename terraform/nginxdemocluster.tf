@@ -1,3 +1,13 @@
+# Creating backend storage to store Terraform Remote State
+terraform {
+  required_version = ">= 0.11"
+  backend "azurerm" {
+    storage_account_name = "__terraformstorageaccount__"
+    container_name       = "terraform"
+    key                  = "terraform.tfstate"
+    access_key           = "__storagekey__"
+  }
+}
 resource "azurerm_resource_group" "steevaavoo" {
   name     = "steevaavooRG1"
   location = "East US"
