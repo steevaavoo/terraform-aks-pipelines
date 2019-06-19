@@ -6,7 +6,7 @@
 ## Method
 
 I'll follow this [tutorial](https://www.azuredevopslabs.com/labs/vstsextend/terraform/)
-get familiar with the process, then retrofit it to serve my above purposes.
+get familiar with the Terraform Pipeline process, then retrofit it to serve my above purposes.
 
 Notes will be kept in a separate file and will follow my rather random way of thinking, so
 please forgive any meandering nonsense...
