@@ -334,5 +334,8 @@ resource "azurerm_container_registry" "acr" {
 }
 ```
 
+For now, we're not going to use the ACR - that mandates building an Image ourselves.
+
+Meanwhile, we will ~steal~ create some YAML files to create a Deployment and Service for the nginxdemo.
 
 
