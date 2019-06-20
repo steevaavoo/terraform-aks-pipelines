@@ -17,6 +17,7 @@ resource "azurerm_container_registry" "stvacr" {
   resource_group_name = "${azurerm_resource_group.stvrg.name}"
   location            = "${azurerm_resource_group.stvrg.location}"
   admin_enabled       = false
+  sku                 = "Basic"
 }
 
 resource "azurerm_kubernetes_cluster" "stvaks" {
