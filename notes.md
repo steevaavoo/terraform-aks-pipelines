@@ -323,16 +323,14 @@ From the Multi-Container Registry Tutorial, I gather that we will need (in addit
 - Azure Container Registry (ACR) - which will go inside our existing Resource Group
 
 So, to the Terraform help... I have copied the below code to the nginxdemocluster, minus the RG definition,
-since we have one of those defined... I've changed entries to correspond to my naming conventions.
+since we have one of those defined... I've changed entries to correspond to my naming conventions. I also removed "georeplication_locations" and "sku" as this is a demo.
 
 ```yaml
 resource "azurerm_container_registry" "acr" {
   name                     = "containerRegistry1"
   resource_group_name      = "${azurerm_resource_group.rg.name}"
   location                 = "${azurerm_resource_group.rg.location}"
-  sku                      = "Premium"
   admin_enabled            = false
-  georeplication_locations = ["East US", "West Europe"]
 }
 ```
 
