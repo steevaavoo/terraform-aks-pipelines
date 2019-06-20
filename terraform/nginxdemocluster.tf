@@ -8,16 +8,22 @@ terraform {
     access_key           = "__storagekey__"
   }
 }
-resource "azurerm_resource_group" "steevaavoo" {
-  name     = "steevaavooRG1"
+resource "azurerm_resource_group" "stvrg" {
+  name     = "stvRG1"
   location = "East US"
 }
+resource "azurerm_container_registry" "stvacr" {
+  name                = "stvcontReg1"
+  resource_group_name = "${azurerm_resource_group.stvrg.name}"
+  location            = "${azurerm_resource_group.stvrg.location}"
+  admin_enabled       = false
+}
 
-resource "azurerm_kubernetes_cluster" "steevaavoo" {
-  name                = "steevaavooaks1"
-  location            = "${azurerm_resource_group.steevaavoo.location}"
-  resource_group_name = "${azurerm_resource_group.steevaavoo.name}"
-  dns_prefix          = "steevaavooagent1"
+resource "azurerm_kubernetes_cluster" "stvaks" {
+  name                = "stvaks1"
+  location            = "${azurerm_resource_group.stvrg.location}"
+  resource_group_name = "${azurerm_resource_group.stvrg.name}"
+  dns_prefix          = "stvagent1"
 
   agent_pool_profile {
     name            = "default"
@@ -37,9 +43,9 @@ resource "azurerm_kubernetes_cluster" "steevaavoo" {
 }
 
 output "client_certificate" {
-  value = "${azurerm_kubernetes_cluster.steevaavoo.kube_config.0.client_certificate}"
+  value = "${azurerm_kubernetes_cluster.stvaks.kube_config.0.client_certificate}"
 }
 
 output "kube_config" {
-  value = "${azurerm_kubernetes_cluster.steevaavoo.kube_config_raw}"
+  value = "${azurerm_kubernetes_cluster.stvaks.kube_config_raw}"
 }
