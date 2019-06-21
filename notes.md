@@ -345,5 +345,4 @@ Then we added the tasks in Pipeline to copy YAMLS to the Artifact Drop directory
 
 Then we added 2 Kubernetes tasks for each YML to deploy them.
 
-And it ran...
-
+And it ran... but only once, because the Service Connection refers statically to the AKS APIServer FQDN.
