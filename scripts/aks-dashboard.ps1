@@ -1,6 +1,7 @@
 # Get the access credentials for the Kubernetes cluster
 # Creds are merged into your current console session, eg:
-# Merged "steevaavoo-aks-cluster01" as current context in /home/adam/.kube/config
+# Merged "steevaavoo-aks-cluster01" as current context in /home/steve/.kube/config
+# You'll need to delete "config" if you have previously done this
 az aks get-credentials --resource-group stvRG1 --name stvaks1
 
 # Show k8s nodes / pods
