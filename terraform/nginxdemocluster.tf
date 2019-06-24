@@ -9,7 +9,7 @@ terraform {
   }
 }
 resource "azurerm_resource_group" "stvrg" {
-  name     = "stvRG1"
+  name     = "__aksrgname__"
   location = "East US"
 }
 resource "azurerm_container_registry" "stvacr" {
@@ -21,7 +21,7 @@ resource "azurerm_container_registry" "stvacr" {
 }
 
 resource "azurerm_kubernetes_cluster" "stvaks" {
-  name                = "stvaks1"
+  name                = "__aksclustername__"
   location            = "${azurerm_resource_group.stvrg.location}"
   resource_group_name = "${azurerm_resource_group.stvrg.name}"
   dns_prefix          = "stvagent1"
