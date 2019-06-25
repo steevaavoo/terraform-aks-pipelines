@@ -1,4 +1,4 @@
-# Creating backend storage to store Terraform Remote State
+# Deploying Terraform Remote State to AZ Storage Container
 terraform {
   required_version = ">= 0.11"
   backend "azurerm" {
