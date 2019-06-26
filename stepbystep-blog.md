@@ -76,6 +76,7 @@ plan to enable Continuous Integration, triggering only when Pull Requests are ap
 1. Agent pool = HostedVS2017
 1. Click the Get sources line
    1. Enable Tag sources "On success"
+1. Click the "Save & queue" drop-down, then click "Save", and add comments if desired.
 
 #### Copying Files from GitHub
 
@@ -101,6 +102,8 @@ Release Pipeline - to do this, we must copy them from GitHub and create a "Build
 1. Click the "Publish Artifact: drop" task to confirm you're happy with the defaults:
    1. Path to publish should be: $(Build.ArtifactStagingDirectory)
    1. Artifact name should be "drop"
+1. Go to the "Triggers" heading, and tick "Enable Continuous Integration"
+   1. Set Branch filters to Type: `Include` | Branch specification: `Master`
 1. Click the Save & queue drop-down, then click Save
 1. Leave the folder as "\" - add a comment if wanted
 
@@ -194,8 +197,8 @@ Click the "Variables" heading at the top, then add the following key/value pairs
 | terraformstorageaccount | \<yourstoragegroupname\>           |
 | terraformstoragerg      | \<yourtfstorageresourcegroupname\> |
 
-Make sure to follow the appropriate [naming rules](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions)
-for the variables specifying resource names.
+*Make sure to follow the appropriate [naming rules](https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions)*
+*for the variables which specify resource names.*
 
 ####  Applying Variables to Terraform file
 
@@ -207,7 +210,131 @@ for the variables specifying resource names.
    1. Expand "Advanced"
       1. Token prefix: `__`
       1. Token suffix: `__`
+1. Click "Save" at the top and add comments as desired
 
 This will search for all the variables in the Terraform file which start and end with "__", and will replace them
 with the values of the matching keys we defined in the "Variables" tab above.
 
+#### Building Infrastructure with Terraform
+
+Next we need to take the .tf file Artifact Drop earlier, and convert it into our AzureRM infrastructure...
+
+1. Click + to add a new Task
+1. Search for "terraform" in the search box, and click Add on the "Run Terraform" task
+1. Click the Terraform task and customise as follows:
+   1. Display name: `Terraform init`
+   1. Terraform template path: `$(System.DefaultWorkingDirectory)/<yourbuildpipeline>/drop/terraform`
+   1. Terraform arguments: `init`
+   1. - [x] Install terraform
+   1. Terraform version: `latest`
+   1. - [x] Use Azure service principal endpoint
+   1. Azure Connection Type: `Azure Resource Manager`
+   1. Azure Subscription: \<yourazuresubscription\>
+1. Next, right-click the Terraform init task, and click Clone, then do that once more
+1. Click the second "Terraform init" task, and rename it to "Terraform plan", and change the Terraform arguments to
+`plan`
+1. Finally, click the last Terraform Task in the list (still called Terraform init), rename it to
+`Terraform apply -auto-approve`, and change the Terraform arguments to: `terraform apply -auto-approve` -
+auto-approve is important here because this is an Automated pipeline, and by default, Terraform asks for
+confirmation before applying a configuration.
+1. Click Save at the top, and add comments if desired.
+
+That's our `Deploy Infrastructure` build pipeline finished! On to the `Deploy Kubernetes App` pipeline...
+
+#### Deploying the Containerised App Demo with Kubernetes
+
+1. Go to "Pipelines" > "Releases", then click to Edit the "NginxDemos Release Pipeline"
+1. Next to Stages, click "+ Add" and from the drop-down, choose "New Stage", then "Empty Job"
+1. Stage name: Deploy Kubernetes App
+1. Click the lightning bolt/person drop-down at the left side of the new Stage, and under "Select trigger" choose
+"After stage", and tick the "Deploy Infrastructure" stage
+1. Click the "x" at the top-right to close the slide-in
+1. Click the "Tasks" drop-down header, and choose "Deploy Kubernetes App" from the list.
+1. Click the "+" on the "Agent job" line, search for "kubectl" and Add the "Kubectl tool installer" task
+1. Click the "+" on the "Agent job" line again, search for "kubernetes" and Add the "Deploy to Kubernetes" task
+1. Click the "kubectl" task in your list, and customise as follows:
+   1. Display name: `kubectl Deploy NginxDemos Deployment`
+   1. Service connection type: `Azure Resource Manager`
+   1. Azure Subscription: `<yourazuresubscription>`
+   1. Resource Group: `$(aksrgname)`
+   1. Kubernetes cluster: `$(aksclustername)`
+   1. Command: `apply`
+   1. Arguments: `-f $(System.DefaultWorkingDirectory)/_tform-aks-pipelines-howto-CI/drop/manifests/deployment.yml`
+1. Right-click your "kubectl Deploy NginxDemos Deployment" and click "Clone Task(s)"
+   1. Click to highlight "kubectl Deploy NginxDemos Deployment copy", make the following changes:
+      1. Display name: `kubectl Deploy nginxdemo Service`
+      1. Commands: `apply`
+      We don't use `create` here, which would be *imperative* and would fail on subsequent runs, so we use `apply`
+      which is *declarative*
+      1. Arguments: `-f $(System.DefaultWorkingDirectory)/_terraform-aks-pipelines-CI/drop/manifests/service.yml`
+1. Click "Save" at the top, adding comments if desired
+
+Now our Release Pipeline is finished!
+
+### Section 4: End-to-End Test
+
+#### Test the Build Pipeline
+
+Let's see if the Pipelines we just built will actually work...
+
+1. Go to "Pipelines" > "Pipelines"
+1. Click the Pipeline itself
+1. Click "Run pipeline"
+1. Change the Branch/tag to "develop" - this will allow us to trigger the Release manually - just whilst testing
+1. At the bottom-right, click "Run"
+
+##### Watch the progress...
+
+Click the job name, and the live log should appear.
+
+When the job finishes, you should see a summary with "Artifacts" listed. Click on "*x* published" to browse and see
+them/it.
+
+We are expecting to see a .tf file in a /terraform folder and some .yml files in a /manifests folder...
+
+If that's the case, let's move on to Release...
+
+#### Test the Release Pipeline
+
+1. Go to "Pipelines" > "Releases"
+1. Click to highlight "NginxDemos Release Pipeline"
+1. Click "Create Release" at the top-right
+1. Add a Release description if desired
+1. Click "Create" at the bottom left of the slide-in
+
+##### Watch the progress...
+
+1. Click the blue link at the top in the green bar saying "Release \<name\> has been queued"
+1. Hover the mouse over the Stage you're interested in, and click the "Logs" icon
+1. Switch to the other Stage with the drop-down at the end of the "trail of breadcrumbs" at the top
+
+You can also watch in the "All Resources" section of your Azure Portal, periodically clicking "Refresh", to see the
+resources being created.
+
+
+Be prepared - this will take a while.
+
+#### Test the App
+
+After both Stages have completed successfully:
+
+1. Go to your "Azure Dashboard"
+1. Under "All Resources", find and click the entry of type "Public IP" - NOTE: this might take quite a few minutes
+to appear while the Container Engine downloads and spins up the relevant Image.
+1. At the top-right, copy the IP address. Paste it into your browser and observe the Nginx "Hello World" demo...
+
+### Test CI/CD
+
+To do this, just make a Commit to Master branch, or switch to Develop (or preferred branch name), make a change,
+then approve a PR into Master and watch the pipeline using the above "watch the progress..." instructions.
+
+GO THROUGH A DOUBLE-CHECK OF THE SETTINGS TO MAKE SURE CI AND CD SETTINGS ARE RETAINED BEFORE FIRST RUN.
+
+### Section 5: Cleaning House
+
+In hosted resource-land, "time is money, people!" So if you want to quickly "nuke the site from orbit", as it were:
+
+```powershell
+Get-AzResourceGroup | Remove-AzResourceGroup -AsJob -Force
+Get-Job | Wait-Job
+```
