@@ -99,3 +99,19 @@ stages:
               InstallTerraform: true
               UseAzureSub: true
               ConnectedServiceNameARM: $(serviceConnection)
+
+          - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
+            displayName: 'Terraform Plan'
+            inputs:
+              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+              Arguments: plan
+              UseAzureSub: true
+              ConnectedServiceNameARM: $(serviceConnection)
+
+          - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
+            displayName: 'Terraform Apply -auto-approve'
+            inputs:
+              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+              Arguments: 'apply -auto-approve'
+              UseAzureSub: true
+              ConnectedServiceNameARM: $(serviceConnection)
