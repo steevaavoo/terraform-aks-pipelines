@@ -55,8 +55,10 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Pipeline Artifact'
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifacts'
+            inputs:
+              artifactName: drop
 
           - task: AzureCLI@1
             displayName: 'Azure CLI to deploy Storage for Terraform Remote'
