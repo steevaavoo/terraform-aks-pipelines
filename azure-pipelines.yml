@@ -39,8 +39,8 @@ stages:
         SourceFolder: manifests
         TargetFolder: '$(Build.ArtifactStagingDirectory)/manifests'
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: drop'
+    - publish: $(Build.ArtifactStagingDirectory)
+      artifact: drop
 
 - stage: Deploy
   jobs:
@@ -55,11 +55,6 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download Build Artifacts'
-            inputs:
-              artifactName: drop
-
           - task: AzureCLI@1
             displayName: 'Azure CLI to deploy Storage for Terraform Remote'
             inputs:
