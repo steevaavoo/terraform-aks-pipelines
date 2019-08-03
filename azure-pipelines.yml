@@ -89,3 +89,12 @@ stages:
               escapeType: none
               tokenPrefix: '__'
               tokenSuffix: '__'
+
+          - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
+            displayName: 'Terraform Init'
+            inputs:
+              TemplatePath: 'drop/Terraform'
+              Arguments: init
+              InstallTerraform: true
+              UseAzureSub: true
+              ConnectedServiceNameARM: $(serviceConnection)
