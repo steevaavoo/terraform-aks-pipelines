@@ -46,7 +46,7 @@ stages:
     # track deployments on the environment
   - deployment: 'NginxDemo_Release_Pipeline'
     pool:
-      vmImage: $(poolName)
+      vmImage: 'vs2017-win2016'
     # creates an environment if it doesn’t exist
     environment: 'dev'
     strategy:
