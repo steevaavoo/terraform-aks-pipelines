@@ -1,0 +1,39 @@
+trigger:
+  batch: "true"
+  branches:
+    include:
+    - master
+    - develop
+
+# A pull request will not trigger a build
+pr: none
+
+resources:
+- repo: self
+
+variables:
+  poolName: 'Hosted VS2017'
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build job
+    pool:
+      name: $(poolName)
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Copy Terraform files to artifacts'
+      inputs:
+        SourceFolder: terraform
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/Terraform'
+
+    - task: CopyFiles@2
+      displayName: 'Copy K8s YAML files to artifacts'
+      inputs:
+        SourceFolder: manifests
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/manifests'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: drop'
