@@ -13,7 +13,6 @@ resources:
 
 variables:
   poolName: 'Hosted VS2017'
-  vmImageName: 'Ubuntu-16.04'
   terraformstoragerg: 'terraformrg'
   terraformstorageaccount: 'terraformstoragestv22f79'
   serviceConnection: 'aks_sc'
@@ -47,7 +46,7 @@ stages:
     # track deployments on the environment
   - deployment: 'NginxDemo_Release_Pipeline'
     pool:
-      vmImage: $(vmImageName)
+      vmImage: $(poolName)
     # creates an environment if it doesn’t exist
     environment: 'dev'
     strategy:
