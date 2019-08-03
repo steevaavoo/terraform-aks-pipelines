@@ -42,8 +42,8 @@ listen on Port 80.
 Since this is hosted on Docker Hub, we needn't worry about getting the files ourselves, we can rely on the Kubernetes
 Container Engine to go fetch it when we Deploy.
 
-Later, however, we will use the Azure Container Registry that we create within the .tf file to build the App using
-Docker, which will allow us to customise the listener port - just as an example.
+Later, however, I intend to utilise the Azure Container Registry that I have defined within the .tf file to
+Containerise the App using Docker, which will allow me to customise the listener port - just as an example.
 
 ## Section 2: Environment Setup
 
@@ -80,8 +80,8 @@ plan to enable Continuous Integration, triggering only when Pull Requests are ap
 
 #### Copying Files from GitHub
 
-Now to add some Tasks. We need the Terraform file and the Kubernetes Manifest files to be available to the
-Release Pipeline - to do this, we must copy them from GitHub and create a "Build Artifact" with them inside.
+Now to add some Tasks. I need the Terraform file and the Kubernetes Manifest files to be available to the
+Release Pipeline - to do this, I need to copy them from GitHub and create a "Build Artifact" with them inside.
 
 1. Click "Agent job 1"
 1. Change the Display name to "Gather Build Artifacts"
@@ -109,8 +109,8 @@ Release Pipeline - to do this, we must copy them from GitHub and create a "Build
 
 ### Release Pipeline
 
-Now we've created a Build Pipeline which will copy our config files, we need to do something with them - enter the
-"Release Pipeline"
+Now that I've created a Build Pipeline which will copy the config files, I need to do something with them - enter
+the "Release Pipeline"
 
 #### Linking Release Pipeline to Build Pipeline and enabling CI
 
@@ -118,7 +118,7 @@ Now we've created a Build Pipeline which will copy our config files, we need to 
 1. Click "New pipeline"
 1. Click "Empty job"
 1. Set the Stage Name to "Deploy Infrastructure"
-1. Click the X at top-right to close the Stage Properties slide-in
+1. Click the "X" at top-right to close the Stage Properties slide-in
 1. Click the name "New release pipeline" and rename to "NginxDemos Release Pipeline"
 1. Click "+ Add" under Artifacts
    1. Project is pre-selected - choose Source (build pipeline): \<your build pipeline name\>
@@ -130,6 +130,7 @@ Now we've created a Build Pipeline which will copy our config files, we need to 
    1. Switch on the Continuous deployment trigger
    1. Click Add, then choose "Include" and specify "master" Build branch
    1. Click "X" at the top-right to close the slide-in
+1. Click "Save" at the top, adding comments if desired
 
 #### Adding "Deploy Infrastructure" Tasks
 
@@ -173,6 +174,7 @@ Now we've created a Build Pipeline which will copy our config files, we need to 
    ```
 
    1. Azure PowerShell Version: Latest installed version
+   1. Click "Save" at the top and add comments if desired
 
 #### Setting Variables
 
@@ -217,7 +219,8 @@ with the values of the matching keys we defined in the "Variables" tab above.
 
 #### Building Infrastructure with Terraform
 
-Next we need to take the .tf file Artifact Drop earlier, and convert it into our AzureRM infrastructure...
+Next I need to take the .tf file Artifact Drop from the Build pipeline, and use it to build my AzureRM
+infrastructure...
 
 1. Click + to add a new Task
 1. Search for "terraform" in the search box, and click Add on the "Run Terraform" task
@@ -239,7 +242,7 @@ auto-approve is important here because this is an Automated pipeline, and by def
 confirmation before applying a configuration.
 1. Click Save at the top, and add comments if desired.
 
-That's our `Deploy Infrastructure` build pipeline finished! On to the `Deploy Kubernetes App` pipeline...
+That's the `Deploy Infrastructure` build pipeline finished! On to the `Deploy Kubernetes App` pipeline...
 
 #### Deploying the Containerised App Demo with Kubernetes
 
@@ -269,18 +272,19 @@ That's our `Deploy Infrastructure` build pipeline finished! On to the `Deploy Ku
       1. Arguments: `-f $(System.DefaultWorkingDirectory)/_terraform-aks-pipelines-CI/drop/manifests/service.yml`
 1. Click "Save" at the top, adding comments if desired
 
-Now our Release Pipeline is finished!
+Now the Release Pipeline is finished!
 
 ### Section 4: End-to-End Test
 
 #### Test the Build Pipeline
 
-Let's see if the Pipelines we just built will actually work...
+Let's see if the Pipelines I just built will actually work...
 
 1. Go to "Pipelines" > "Pipelines"
 1. Click the Pipeline itself
 1. Click "Run pipeline"
-1. Change the Branch/tag to "develop" - this will allow us to trigger the Release manually - just whilst testing
+1. Change the Branch/tag to "develop" - this will allow us to trigger the Release pipeline manually after the 
+Build pipeline completes - just whilst testing
 1. At the bottom-right, click "Run"
 
 ##### Watch the progress...
@@ -290,9 +294,9 @@ Click the job name, and the live log should appear.
 When the job finishes, you should see a summary with "Artifacts" listed. Click on "*x* published" to browse and see
 them/it.
 
-We are expecting to see a .tf file in a /terraform folder and some .yml files in a /manifests folder...
+I'm expecting to see a .tf file in a /terraform folder and some .yml files in a /manifests folder...
 
-If that's the case, let's move on to Release...
+Assuming that's the case, move on to Release...
 
 #### Test the Release Pipeline
 
