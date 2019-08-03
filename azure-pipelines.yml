@@ -105,6 +105,7 @@ stages:
             inputs:
               TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
               Arguments: plan
+              InstallTerraform: true
               UseAzureSub: true
               ConnectedServiceNameARM: $(serviceConnection)
 
@@ -113,5 +114,6 @@ stages:
             inputs:
               TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
               Arguments: 'apply -auto-approve'
+              InstallTerraform: true
               UseAzureSub: true
               ConnectedServiceNameARM: $(serviceConnection)
