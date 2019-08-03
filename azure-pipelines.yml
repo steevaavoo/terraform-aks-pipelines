@@ -16,6 +16,7 @@ variables:
   terraformstoragerg: 'terraformrg'
   terraformstorageaccount: 'terraformstoragestv22f79'
   serviceConnection: 'aks_sc'
+  System.Debug: true
 
 stages:
 - stage: Build
@@ -93,7 +94,7 @@ stages:
           - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
             displayName: 'Terraform Init'
             inputs:
-              TemplatePath: '$(System.ArtifactsDirectory)/drop/Terraform'
+              TemplatePath: '$(System.ArtifactsDirectory)/Terraform'
               Arguments: init
               InstallTerraform: true
               UseAzureSub: true
