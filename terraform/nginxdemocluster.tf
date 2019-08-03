@@ -9,11 +9,11 @@ terraform {
   }
 }
 resource "azurerm_resource_group" "stvrg" {
-  name     = "__aksrgname__"
-  location = "East US"
+  name     = "${var.azure_resourcegroup_name}"
+  location = "${var.location}"
 }
 resource "azurerm_container_registry" "stvacr" {
-  name                = "stvcontReg1"
+  name                = "${var.container_registry_name}"
   resource_group_name = "${azurerm_resource_group.stvrg.name}"
   location            = "${azurerm_resource_group.stvrg.location}"
   admin_enabled       = false
@@ -24,11 +24,11 @@ resource "azurerm_kubernetes_cluster" "stvaks" {
   name                = "__aksclustername__"
   location            = "${azurerm_resource_group.stvrg.location}"
   resource_group_name = "${azurerm_resource_group.stvrg.name}"
-  dns_prefix          = "stvagent1"
+  dns_prefix          = "${var.aks_dns_prefix}"
 
   agent_pool_profile {
     name            = "default"
-    count           = 2
+    count           = "${var.agent_pool_count}"
     vm_size         = "Standard_D1_v2"
     os_type         = "Linux"
     os_disk_size_gb = 30
