@@ -123,3 +123,26 @@ stages:
               InstallTerraform: true
               UseAzureSub: true
               ConnectedServiceNameARM: $(serviceConnection)
+
+          - task: KubectlInstaller@0
+            displayName: 'Install Kubectl latest'
+
+          - task: Kubernetes@1
+            displayName: 'kubectl - (Resource Manager) Deploy nginxdemo Deployment'
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: '$(serviceConnection)'
+              azureResourceGroup: '$(aksrgname)'
+              kubernetesCluster: '$(aksclustername)'
+              command: apply
+              arguments: '-f $(Pipeline.Workspace)/Drop/manifests/deployment.yml'
+
+          - task: Kubernetes@1
+            displayName: 'kubectl - (Resource Manager) Deploy nginxdemo Service'
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: '$(serviceConnection)'
+              azureResourceGroup: '$(aksrgname)'
+              kubernetesCluster: '$(aksclustername)'
+              command: apply
+              arguments: '-f $(Pipeline.Workspace)/Drop/manifests/service.yml'
