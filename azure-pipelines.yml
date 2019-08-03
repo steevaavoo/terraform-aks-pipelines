@@ -15,6 +15,7 @@ variables:
   poolName: 'Hosted VS2017'
   terraformstoragerg: 'terraformrg'
   terraformstorageaccount: 'terraformstoragestv22f79'
+  serviceConnection: 'aks_sc'
 
 stages:
 - stage: Build
@@ -40,29 +41,29 @@ stages:
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifact: drop'
 
-# - stage: Deploy
-#   jobs:
-#     # track deployments on the environment
-#   - deployment: 'NginxDemo_Release_Pipeline'
-#     pool:
-#       name: $(poolName)
-#     # creates an environment if it doesn’t exist
-#     environment: 'dev'
-#     strategy:
-#       # default deployment strategy
-#       runOnce:
-#         deploy:
-#           steps:
-#           - task: AzureCLI@1
-#             displayName: 'Azure CLI to deploy Storage for Terraform Remote'
-#             inputs:
-#               azureSubscription: 'Pay-as-you-go (bf1b8d8e-3111-4019-b392-2aa314b07467)'
-#               scriptLocation: inlineScript
-#               inlineScript: |
-#                 # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
+- stage: Deploy
+  jobs:
+    # track deployments on the environment
+  - deployment: 'NginxDemo_Release_Pipeline'
+    pool:
+      name: $(poolName)
+    # creates an environment if it doesn’t exist
+    environment: 'dev'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@1
+            displayName: 'Azure CLI to deploy Storage for Terraform Remote'
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptLocation: inlineScript
+              inlineScript: |
+                # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
 
-#                 call az group create --location eastus --name $(terraformstoragerg)
+                call az group create --location eastus --name $(terraformstoragerg)
 
-#                 call az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location eastus --sku Standard_LRS
+                call az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location eastus --sku Standard_LRS
 
-#                 call az storage container create --name terraform --account-name $(terraformstorageaccount)
+                call az storage container create --name terraform --account-name $(terraformstorageaccount)
