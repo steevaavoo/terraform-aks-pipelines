@@ -86,7 +86,7 @@ stages:
           - task: qetza.replacetokens.replacetokens-task.replacetokens@3
             displayName: 'Replace tokens in **/*.tf'
             inputs:
-              targetFiles: '**/*.tf'
+              targetFiles: '$(Pipeline.Workspace)/Drop/Terraform/*.tf'
               escapeType: none
               tokenPrefix: '__'
               tokenSuffix: '__'
