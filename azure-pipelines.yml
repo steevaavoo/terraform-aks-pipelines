@@ -24,7 +24,7 @@ stages:
   - job: Build
     displayName: Build job
     pool:
-      name: $(poolName)
+      vmImage: $(poolName)
     steps:
     - task: CopyFiles@2
       displayName: 'Copy Terraform files to artifacts'
