@@ -43,7 +43,7 @@ stages:
 - stage: Deploy
   jobs:
     # track deployments on the environment
-  - deployment: 'NginxDemo Release Pipeline'
+  - deployment: 'NginxDemo_Release_Pipeline'
     pool:
       name: $(poolName)
     # creates an environment if it doesn’t exist
