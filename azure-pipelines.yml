@@ -93,7 +93,7 @@ stages:
           - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
             displayName: 'Terraform Init'
             inputs:
-              TemplatePath: '$(System.DefaultWorkingDirectory)/drop/Terraform'
+              TemplatePath: '$(System.ArtifactsDirectory)/drop/Terraform'
               Arguments: init
               InstallTerraform: true
               UseAzureSub: true
