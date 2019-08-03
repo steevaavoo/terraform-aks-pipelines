@@ -12,7 +12,7 @@ resources:
 - repo: self
 
 variables:
-  poolName: 'Hosted VS2017'
+  poolName: 'vs2017-win2016'
   terraformstoragerg: 'terraformrg'
   terraformstorageaccount: 'terraformstoragestv22f79'
   serviceConnection: 'aks_sc'
