@@ -16,6 +16,12 @@ variables:
   terraformstoragerg: 'terraformrg'
   terraformstorageaccount: 'terraformstoragestv22f79'
   serviceConnection: 'aks_sc'
+  aksclustername: 'stvaks1'
+  aksrgname: 'stvRG1'
+  ClientID: 'http://tfm-k8s-spn'
+  k8sapiserverfqdn: 'willbefetchedbyscript'
+  storagekey: 'willbefetchedbyscript'
+
   System.Debug: false
 
 stages:
