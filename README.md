@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/stevembaker/terraform-aks-yaml-pipelines/_apis/build/status/steevaavoo.terraform-aks-pipelines?branchName=develop)](https://dev.azure.com/stevembaker/terraform-aks-yaml-pipelines/_build/latest?definitionId=7&branchName=develop)
+
 # Goals
 
 1. Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
