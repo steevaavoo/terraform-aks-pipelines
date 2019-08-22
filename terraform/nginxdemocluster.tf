@@ -1,4 +1,4 @@
-# Deploying Terraform Remote State to AZ Storage Container - Variables not allowed here.
+# Deploying Terraform Remote State to AZ Storage Container
 terraform {
   required_version = ">= 0.11"
   backend "azurerm" {
