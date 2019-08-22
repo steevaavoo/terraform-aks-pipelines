@@ -2,12 +2,12 @@
 
 # Goals
 
-1. Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
-1. Deploy an App (nginxdemo) through Azure Pipelines
-1. Prevent changes to notes (and readme.md) from triggering builds
-1. Change all build agents to Linux
-1. Deploy the same App using Helm
-1. Update an A record with the address of the App (see Adam's example)
+- [x] Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
+- [x] Deploy an App (nginxdemo) through Azure Pipelines
+- [x] Prevent changes to notes (and readme.md) from triggering builds
+- [ ] Change all build agents to Linux
+- [ ] Deploy the same App using Helm
+- [ ] Update an A record with the address of the App (see Adam's example)
 
 ## Method
 
