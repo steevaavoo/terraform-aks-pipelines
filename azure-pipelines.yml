@@ -9,7 +9,8 @@ trigger:
     - develop
   paths:
     exclude:
-    - '**/*.md'
+    - README.md
+    - docs
 
 # A pull request will not trigger a build
 pr: none
