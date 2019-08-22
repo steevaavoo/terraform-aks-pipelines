@@ -1,19 +1,3 @@
-variable "backend_storage_account_name" {
-  default = "__terraformstorageaccount__"
-}
-
-variable "backend_storage_container_name" {
-  default = "terraform"
-}
-
-variable "backend_storage_key" {
-  default = "terraform.tfstate"
-}
-
-variable "backend_storage_access_key" {
-  default = "__storagekey__"
-}
-
 variable "container_registry_name" {
   default = "stvcontReg1"
 }

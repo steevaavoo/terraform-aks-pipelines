@@ -2,10 +2,10 @@
 terraform {
   required_version = ">= 0.11"
   backend "azurerm" {
-    storage_account_name = "${var.backend_storage_account_name}"
-    container_name       = "${var.backend_storage_container_name}"
-    key                  = "${var.backend_storage_key}"
-    access_key           = "${var.backend_storage_access_key}"
+    storage_account_name = "__terraformstorageaccount__"
+    container_name       = "terraform"
+    key                  = "terraform.tfstate"
+    access_key           = "__storagekey__"
   }
 }
 resource "azurerm_resource_group" "stvrg" {
