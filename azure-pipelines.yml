@@ -7,6 +7,9 @@ trigger:
     include:
     - master
     - develop
+  paths:
+    exclude:
+    - ./*.md
 
 # A pull request will not trigger a build
 pr: none
