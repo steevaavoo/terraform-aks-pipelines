@@ -20,17 +20,23 @@ resources:
     - repository: self
 
 variables:
-  poolName: 'ubuntu-latest'
-  terraformstoragerg: 'terraformrg'
-  terraformstorageaccount: 'terraformstoragestv22f79'
-  serviceConnection: 'aks_sc'
-  aksclustername: 'stvaks1'
-  aksrgname: 'stvRG1'
-  ClientID: 'http://tfm-k8s-spn'
-  # k8sapiserverfqdn: 'willbefetchedbyscript' <-- this is not referenced anywhere. Testing without.
-  storagekey: 'willbefetchedbyscript'
-
-  System.Debug: false
+- group: my-variable-group
+- name: poolName
+  value: 'ubuntu-latest'
+- name: terraformstoragerg
+  value: 'terraformrg'
+- name: terraformstorageaccount
+  value: 'terraformstoragestv22f79'
+- name: serviceConnection
+  value: 'aks_sc'
+- name: aksclustername
+  value: 'stvaks1'
+- name: aksrgname
+  value: 'stvRG1'
+- name: ClientID
+  value: 'http://tfm-k8s-spn'
+- name: storagekey
+  value: 'willbefetchedbyscript'
 
 stages:
 - stage: Build
