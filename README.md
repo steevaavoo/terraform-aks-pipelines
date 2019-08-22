@@ -14,3 +14,5 @@ get familiar with the Terraform Pipeline process, then retrofit it to serve my a
 
 Notes will be kept in a separate file and will follow my rather random way of thinking, so
 please forgive any meandering nonsense...
+
+Adding this line to test exclusion of .MD files from Build Triggers.
