@@ -2,7 +2,7 @@
 
 1. Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
 1. Deploy an App (nginxdemo) through Azure Pipelines
-1. Prevent changes to notes from triggering builds
+1. Prevent changes to notes (and readme.md) from triggering builds
 1. Change all build agents to Linux
 1. Deploy the same App using Helm
 1. Update an A record with the address of the App (see Adam's example)
