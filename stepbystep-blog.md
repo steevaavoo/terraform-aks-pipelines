@@ -342,3 +342,8 @@ In hosted resource-land, "time is money, people!" So if you want to quickly "nuk
 Get-AzResourceGroup | Remove-AzResourceGroup -AsJob -Force
 Get-Job | Wait-Job
 ```
+
+### Section 6: Converting to YAML
+
+How we went about converting the GUI-based steps into a 100% YAML-based pipeline.
+
