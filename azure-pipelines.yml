@@ -20,7 +20,7 @@ resources:
     - repository: self
 
 variables:
-- group: my-variable-group
+- group: vars
 - name: poolName
   value: 'ubuntu-latest'
 - name: terraformstoragerg
