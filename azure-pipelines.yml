@@ -1,3 +1,6 @@
+# Continuous integration (CI) triggers cause a build to run whenever a push is made to the specified branches
+# or a specified tag is pushed.
+# YAML builds are configured by default with a CI trigger on all branches.
 trigger:
   batch: "false"
   branches:
@@ -8,8 +11,13 @@ trigger:
 # A pull request will not trigger a build
 pr: none
 
+# If your pipeline has templates in another repository, you must let the system know about that repository.
+# The repository resource lets you specify an external repository.
+# In this case "self" means "the repository that the YAML file is in". Though it
+# should not be necessary.
 resources:
-- repo: self
+  repositories:
+    - repository: self
 
 variables:
   poolName: 'ubuntu-latest'
@@ -19,7 +27,7 @@ variables:
   aksclustername: 'stvaks1'
   aksrgname: 'stvRG1'
   ClientID: 'http://tfm-k8s-spn'
-  k8sapiserverfqdn: 'willbefetchedbyscript'
+  # k8sapiserverfqdn: 'willbefetchedbyscript' <-- this is not referenced anywhere. Testing without.
   storagekey: 'willbefetchedbyscript'
 
   System.Debug: false
