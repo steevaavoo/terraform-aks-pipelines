@@ -69,12 +69,12 @@ stages:
       runOnce:
         deploy:
           steps:
+          # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
           - task: AzureCLI@1
             displayName: 'Azure CLI to deploy Storage for Terraform Remote'
             inputs:
               azureSubscription: $(serviceConnection)
-              scriptLocation: inlineScript
-              # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
+              scriptLocation: 'inlineScript'
               inlineScript: |
                 az group create --location eastus --name $(terraformstoragerg)
                 az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location eastus --sku Standard_LRS
