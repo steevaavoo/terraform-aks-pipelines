@@ -90,7 +90,7 @@ stages:
                 az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location eastus --sku Standard_LRS
                 az storage container create --name terraform --account-name $(terraformstorageaccount)
 
-          - task: AzurePowerShell@3
+          - task: AzurePowerShell@4
             displayName: 'Azure PowerShell script to get Storage Key'
             inputs:
               azureSubscription: $(serviceConnection)
