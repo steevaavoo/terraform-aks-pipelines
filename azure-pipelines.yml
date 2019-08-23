@@ -112,25 +112,25 @@ stages:
               tokenPrefix: '__'
               tokenSuffix: '__'
 
-          - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
+          - task: Terraform@2
             displayName: 'Terraform Init'
             inputs:
               TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-              Arguments: init
+              Arguments: 'init'
               InstallTerraform: true
               UseAzureSub: true
               ConnectedServiceNameARM: $(serviceConnection)
 
-          - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
+          - task: Terraform@2
             displayName: 'Terraform Plan'
             inputs:
               TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-              Arguments: plan
+              Arguments: 'plan'
               InstallTerraform: true
               UseAzureSub: true
               ConnectedServiceNameARM: $(serviceConnection)
 
-          - task: petergroenewegen.PeterGroenewegen-Xpirit-Vsts-Release-Terraform.Xpirit-Vsts-Release-Terraform.Terraform@2
+          - task: Terraform@2
             displayName: 'Terraform Apply -auto-approve'
             inputs:
               TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
