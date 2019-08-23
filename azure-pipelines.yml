@@ -31,6 +31,8 @@ variables:
   value: 'terraformrg'
 - name: terraformstorageaccount
   value: 'terraformstoragestv22f79'
+- name: tfstoragecontainername
+  value: 'terraform'
 - name: serviceConnection
   value: 'aks_sc'
 - name: aksclustername
@@ -88,7 +90,7 @@ stages:
               inlineScript: |
                 az group create --location eastus --name $(terraformstoragerg)
                 az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location eastus --sku Standard_LRS
-                az storage container create --name terraform --account-name $(terraformstorageaccount)
+                az storage container create --name $(tfstoragecontainername) --account-name $(terraformstorageaccount)
 
           - task: AzurePowerShell@4
             displayName: 'Azure PowerShell script to get Storage Key'
@@ -112,32 +114,43 @@ stages:
               tokenPrefix: '__'
               tokenSuffix: '__'
 
-          - task: Terraform@2
+
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
             displayName: 'Terraform Init'
             inputs:
-              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-              Arguments: 'init'
-              InstallTerraform: true
-              UseAzureSub: true
-              ConnectedServiceNameARM: $(serviceConnection)
+              workingDirectory: '$(Pipeline.Workspace)/Drop/Terraform'
+              backendServiceArm: $(serviceConnection)
+              backendAzureRmResourceGroupName: $(terraformstoragerg)
+              backendAzureRmStorageAccountName: $(terraformstorageaccount)
+              backendAzureRmContainerName: $(tfstoragecontainername)
+              backendAzureRmKey: $(storagekey)
 
-          - task: Terraform@2
-            displayName: 'Terraform Plan'
-            inputs:
-              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-              Arguments: 'plan'
-              InstallTerraform: true
-              UseAzureSub: true
-              ConnectedServiceNameARM: $(serviceConnection)
+          # - task: Terraform@2
+          #   displayName: 'Terraform Init'
+          #   inputs:
+          #     TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+          #     Arguments: 'init'
+          #     InstallTerraform: true
+          #     UseAzureSub: true
+          #     ConnectedServiceNameARM: $(serviceConnection)
 
-          - task: Terraform@2
-            displayName: 'Terraform Apply -auto-approve'
-            inputs:
-              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-              Arguments: 'apply -auto-approve'
-              InstallTerraform: true
-              UseAzureSub: true
-              ConnectedServiceNameARM: $(serviceConnection)
+          # - task: Terraform@2
+          #   displayName: 'Terraform Plan'
+          #   inputs:
+          #     TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+          #     Arguments: 'plan'
+          #     InstallTerraform: true
+          #     UseAzureSub: true
+          #     ConnectedServiceNameARM: $(serviceConnection)
+
+          # - task: Terraform@2
+          #   displayName: 'Terraform Apply -auto-approve'
+          #   inputs:
+          #     TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+          #     Arguments: 'apply -auto-approve'
+          #     InstallTerraform: true
+          #     UseAzureSub: true
+          #     ConnectedServiceNameARM: $(serviceConnection)
 
           - task: KubectlInstaller@0
             displayName: 'Install Kubectl latest'
