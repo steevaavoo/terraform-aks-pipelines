@@ -1,3 +1,4 @@
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema
 # Continuous integration (CI) triggers cause a build to run whenever a push is made to the specified branches
 # or a specified tag is pushed.
 # YAML builds are configured by default with a CI trigger on all branches.
@@ -132,7 +133,7 @@ stages:
     # track deployments on the environment
   - deployment: 'Deploy'
     pool:
-      vmImage: $(WinPoolName)
+      name: $(WinPoolName)
     # creates an environment if it doesn’t exist
     environment: 'dev'
     strategy:
