@@ -139,8 +139,6 @@ stages:
         tokenPrefix: '##'
         tokenSuffix: '##'
 
-    - script: 'echo "storagekey: [$(storagekey)]"'
-
     - task: Terraform@2
       displayName: 'Terraform Init'
       inputs:
