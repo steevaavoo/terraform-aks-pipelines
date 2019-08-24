@@ -5,7 +5,7 @@ terraform {
     storage_account_name = "__terraformstorageaccount__"
     container_name       = "__tf_container_name__"
     key                  = "__tf_key__"
-    access_key           = "__storagekey__"
+    access_key           = "##storagekey##"
   }
 }
 resource "azurerm_resource_group" "stvrg" {
