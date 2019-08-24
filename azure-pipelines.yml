@@ -70,6 +70,14 @@ stages:
         SourceFolder: terraform
         TargetFolder: '$(Build.ArtifactStagingDirectory)/Terraform'
 
+    - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+      displayName: 'Replace tokens in **/*.tf'
+      inputs:
+        targetFiles: '$(Build.ArtifactStagingDirectory)/Terraform/*.tf'
+        escapeType: none
+        tokenPrefix: '__'
+        tokenSuffix: '__'
+
     - task: CopyFiles@2
       displayName: 'Copy K8s YAML files to artifacts'
       inputs:
@@ -111,19 +119,6 @@ stages:
         ScriptType: 'FilePath'
         ScriptPath: '$(Pipeline.Workspace)/drop/scripts/Get-StorageKey.ps1'
         azurePowerShellVersion: 'latestVersion'
-
-    - task: qetza.replacetokens.replacetokens-task.replacetokens@3
-      displayName: 'Replace tokens in **/*.tf'
-      inputs:
-        targetFiles: '$(Pipeline.Workspace)/drop/Terraform/*.tf'
-        escapeType: none
-        tokenPrefix: '__'
-        tokenSuffix: '__'
-
-    # - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-    #   displayName: 'Install Terraform 0.12.7'
-    #   inputs:
-    #     terraformVersion: 0.12.7
 
 - stage: Deploy
   jobs:
