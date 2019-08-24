@@ -43,6 +43,10 @@ variables:
   value: 'http://tfm-k8s-spn'
 - name: storagekey
   value: 'willbefetchedbyscript'
+- name: tf_key
+  value: 'terraform.tfstate'
+- name: tf_container_name
+  value: 'terraform'
 
 stages:
 - stage: Build
@@ -131,7 +135,7 @@ stages:
               backendAzureRmResourceGroupName: '$(terraformstoragerg)'
               backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
               backendAzureRmContainerName: '$(tfstoragecontainername)'
-              backendAzureRmKey: '$(storagekey)'
+              backendAzureRmKey: '$(tf_key)'
 
           # - task: Terraform@2
           #   displayName: 'Terraform Init'
