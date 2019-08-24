@@ -86,107 +86,97 @@ stages:
 - stage: Provision
   jobs:
     # track deployments on the environment
-  - deployment: 'Provision'
+  - job: 'Provision'
     pool:
       vmImage: $(LinuxPoolName)
     # creates an environment if it doesn’t exist
-    environment: 'dev'
-    strategy:
-      # default deployment strategy
-      runOnce:
-        deploy:
-          steps:
-          - download: current
-            artifact: drop
+    steps:
+    - download: current
+      artifact: drop
 
-          # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
-          - task: AzureCLI@1
-            displayName: 'Provision Storage for TF State'
-            inputs:
-              azureSubscription: '$(serviceConnection)'
-              scriptLocation: 'scriptPath'
-              scriptPath: '$(Pipeline.Workspace)/drop/scripts/Create-TerraformStateStorage.sh'
+    # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
+    - task: AzureCLI@1
+      displayName: 'Provision Storage for TF State'
+      inputs:
+        azureSubscription: '$(serviceConnection)'
+        scriptLocation: 'scriptPath'
+        scriptPath: '$(Pipeline.Workspace)/drop/scripts/Create-TerraformStateStorage.sh'
 
-          - task: AzurePowerShell@4
-            displayName: 'Get TF State Storage Key'
-            inputs:
-              azureSubscription: '$(serviceConnection)'
-              ScriptType: 'FilePath'
-              ScriptPath: '$(Pipeline.Workspace)/drop/scripts/Get-StorageKey.ps1'
-              azurePowerShellVersion: 'latestVersion'
+    - task: AzurePowerShell@4
+      displayName: 'Get TF State Storage Key'
+      inputs:
+        azureSubscription: '$(serviceConnection)'
+        ScriptType: 'FilePath'
+        ScriptPath: '$(Pipeline.Workspace)/drop/scripts/Get-StorageKey.ps1'
+        azurePowerShellVersion: 'latestVersion'
 
-          - task: qetza.replacetokens.replacetokens-task.replacetokens@3
-            displayName: 'Replace tokens in **/*.tf'
-            inputs:
-              targetFiles: '$(Pipeline.Workspace)/drop/Terraform/*.tf'
-              escapeType: none
-              tokenPrefix: '__'
-              tokenSuffix: '__'
+    - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+      displayName: 'Replace tokens in **/*.tf'
+      inputs:
+        targetFiles: '$(Pipeline.Workspace)/drop/Terraform/*.tf'
+        escapeType: none
+        tokenPrefix: '__'
+        tokenSuffix: '__'
 
-          # - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-          #   displayName: 'Install Terraform 0.12.7'
-          #   inputs:
-          #     terraformVersion: 0.12.7
+    # - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+    #   displayName: 'Install Terraform 0.12.7'
+    #   inputs:
+    #     terraformVersion: 0.12.7
 
 - stage: Deploy
   jobs:
     # track deployments on the environment
-  - deployment: 'Deploy'
+  - job: 'Deploy'
     pool:
-      name: $(WinPoolName)
+      vmImage: $(WinPoolName)
     # creates an environment if it doesn’t exist
-    environment: 'dev'
-    strategy:
-      # default deployment strategy
-      runOnce:
-        deploy:
-          steps:
-          - task: Terraform@2
-            displayName: 'Terraform Init'
-            inputs:
-              TemplatePath: '$(Pipeline.Workspace)/drop/Terraform'
-              Arguments: 'init'
-              InstallTerraform: true
-              UseAzureSub: true
-              ConnectedServiceNameARM: $(serviceConnection)
+    steps:
+    - task: Terraform@2
+      displayName: 'Terraform Init'
+      inputs:
+        TemplatePath: '$(Pipeline.Workspace)/drop/Terraform'
+        Arguments: 'init'
+        InstallTerraform: true
+        UseAzureSub: true
+        ConnectedServiceNameARM: $(serviceConnection)
 
-          # - task: Terraform@2
-          #   displayName: 'Terraform Plan'
-          #   inputs:
-          #     TemplatePath: '$(Pipeline.Workspace)/drop/Terraform'
-          #     Arguments: 'plan'
-          #     InstallTerraform: true
-          #     UseAzureSub: true
-          #     ConnectedServiceNameARM: $(serviceConnection)
+    # - task: Terraform@2
+    #   displayName: 'Terraform Plan'
+    #   inputs:
+    #     TemplatePath: '$(Pipeline.Workspace)/drop/Terraform'
+    #     Arguments: 'plan'
+    #     InstallTerraform: true
+    #     UseAzureSub: true
+    #     ConnectedServiceNameARM: $(serviceConnection)
 
-          - task: Terraform@2
-            displayName: 'Terraform Apply -auto-approve'
-            inputs:
-              TemplatePath: '$(Pipeline.Workspace)/drop/Terraform'
-              Arguments: 'apply -auto-approve'
-              InstallTerraform: true
-              UseAzureSub: true
-              ConnectedServiceNameARM: $(serviceConnection)
+    - task: Terraform@2
+      displayName: 'Terraform Apply -auto-approve'
+      inputs:
+        TemplatePath: '$(Pipeline.Workspace)/drop/Terraform'
+        Arguments: 'apply -auto-approve'
+        InstallTerraform: true
+        UseAzureSub: true
+        ConnectedServiceNameARM: $(serviceConnection)
 
-          - task: KubectlInstaller@0
-            displayName: 'Install Kubectl latest'
+    - task: KubectlInstaller@0
+      displayName: 'Install Kubectl latest'
 
-          - task: Kubernetes@1
-            displayName: 'kubectl - (Resource Manager) Deploy nginxdemo Deployment'
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: '$(serviceConnection)'
-              azureResourceGroup: '$(aksrgname)'
-              kubernetesCluster: '$(aksclustername)'
-              command: apply
-              arguments: '-f $(Pipeline.Workspace)/drop/manifests/deployment.yml'
+    - task: Kubernetes@1
+      displayName: 'kubectl - (Resource Manager) Deploy nginxdemo Deployment'
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: '$(serviceConnection)'
+        azureResourceGroup: '$(aksrgname)'
+        kubernetesCluster: '$(aksclustername)'
+        command: apply
+        arguments: '-f $(Pipeline.Workspace)/drop/manifests/deployment.yml'
 
-          - task: Kubernetes@1
-            displayName: 'kubectl - (Resource Manager) Deploy nginxdemo Service'
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: '$(serviceConnection)'
-              azureResourceGroup: '$(aksrgname)'
-              kubernetesCluster: '$(aksclustername)'
-              command: apply
-              arguments: '-f $(Pipeline.Workspace)/drop/manifests/service.yml'
+    - task: Kubernetes@1
+      displayName: 'kubectl - (Resource Manager) Deploy nginxdemo Service'
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: '$(serviceConnection)'
+        azureResourceGroup: '$(aksrgname)'
+        kubernetesCluster: '$(aksclustername)'
+        command: apply
+        arguments: '-f $(Pipeline.Workspace)/drop/manifests/service.yml'
