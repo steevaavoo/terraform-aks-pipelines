@@ -5,7 +5,8 @@
 - [x] Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
 - [x] Deploy an App (nginxdemo) through Azure Pipelines
 - [x] Prevent changes to notes (and readme.md) from triggering builds
-- [ ] Change all build agents to Linux
+- [ ] Change main build agent to Linux
+- [ ] Add a stage for Terraform tasks to run specifically with Windows agent
 - [ ] Deploy the same App using Helm
 - [ ] Update an A record with the address of the App (see Adam's example)
 
