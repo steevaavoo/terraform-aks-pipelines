@@ -120,14 +120,6 @@ stages:
         ScriptPath: '$(Pipeline.Workspace)/drop/scripts/Get-StorageKey.ps1'
         azurePowerShellVersion: 'latestVersion'
 
-    - task: qetza.replacetokens.replacetokens-task.replacetokens@3
-      displayName: 'Replace TF State StorageKey'
-      inputs:
-        targetFiles: '$(Pipeline.Workspace)/drop/Terraform/*.tf'
-        escapeType: none
-        tokenPrefix: '##'
-        tokenSuffix: '##'
-
 - stage: Deploy
   jobs:
     # track deployments on the environment
@@ -138,6 +130,14 @@ stages:
     steps:
     - download: current
       artifact: drop
+
+    - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+      displayName: 'Replace TF State StorageKey'
+      inputs:
+        targetFiles: '$(Pipeline.Workspace)/drop/Terraform/*.tf'
+        escapeType: none
+        tokenPrefix: '##'
+        tokenSuffix: '##'
 
     - script: 'echo "storagekey: [$(storagekey)]"'
 
