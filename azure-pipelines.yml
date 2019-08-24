@@ -25,8 +25,10 @@ resources:
 
 variables:
 - group: vars
-- name: poolName
-  value: 'ubuntu-latest'
+- name: LinuxPoolName
+  value: 'ubuntu-16.04'
+- name: WinPoolName
+  value: 'windows-2019	'
 - name: terraformstoragerg
   value: 'terraformrg'
 - name: terraformstorageaccount
@@ -47,6 +49,8 @@ variables:
   value: 'terraform.tfstate'
 - name: tf_container_name
   value: 'terraform'
+- name: resource_location
+  value: 'eastus'
 
 stages:
 - stage: Build
@@ -55,7 +59,7 @@ stages:
   - job: Build
     displayName: Build job
     pool:
-      vmImage: $(poolName)
+      vmImage: $(LinuxPoolName)
     steps:
     - task: CopyFiles@2
       displayName: 'Copy Terraform files to artifacts'
@@ -69,15 +73,21 @@ stages:
         SourceFolder: manifests
         TargetFolder: '$(Build.ArtifactStagingDirectory)/manifests'
 
+    - task: CopyFiles@2
+      displayName: 'Copy Scripts to artifacts'
+      inputs:
+        SourceFolder: scripts
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/scripts'
+
     - publish: $(Build.ArtifactStagingDirectory)
       artifact: drop
 
-- stage: Deploy
+- stage: Provision
   jobs:
     # track deployments on the environment
-  - deployment: 'NginxDemo_Release_Pipeline'
+  - deployment: 'Provision'
     pool:
-      vmImage: $(poolName)
+      vmImage: $(LinuxPoolName)
     # creates an environment if it doesn’t exist
     environment: 'dev'
     strategy:
@@ -87,28 +97,19 @@ stages:
           steps:
           # the following script will create an Azure resource group, Storage account and Storage container which will be used to store terraform remote state
           - task: AzureCLI@1
-            displayName: 'Azure CLI to deploy Storage for Terraform Remote'
+            displayName: 'Provision Storage for TF State'
             inputs:
-              azureSubscription: $(serviceConnection)
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az group create --location eastus --name $(terraformstoragerg)
-                az storage account create --name $(terraformstorageaccount) --resource-group $(terraformstoragerg) --location eastus --sku Standard_LRS
-                az storage container create --name $(tfstoragecontainername) --account-name $(terraformstorageaccount)
+              azureSubscription: '$(serviceConnection)'
+              scriptLocation: 'scriptPath'
+              scriptPath: '$(Pipeline.Workspace)/Drop/Scripts/Create-TerraformStateStorage.bat'
 
           - task: AzurePowerShell@4
-            displayName: 'Azure PowerShell script to get Storage Key'
+            displayName: 'Get TF State Storage Key'
             inputs:
-              azureSubscription: $(serviceConnection)
-              ScriptType: InlineScript
-              Inline: |
-                # Using this script we will fetch the storage key which is required in our Terraform file to authenticate to the backend storage account
-
-                $key=(Get-AzStorageAccountKey -ResourceGroupName $(terraformstoragerg) -AccountName $(terraformstorageaccount)).Value[0] #don't use $ when assigning this
-
-                Write-Host "##vso[task.setvariable variable=storagekey]$key" #to do in azure cli use echo instead
-
-              azurePowerShellVersion: latestVersion
+              azureSubscription: '$(serviceConnection)'
+              ScriptType: 'FilePath'
+              ScriptPath: '$(Pipeline.Workspace)/Drop/Scripts/Get-StorageKey.ps1'
+              azurePowerShellVersion: 'latestVersion'
 
           - task: qetza.replacetokens.replacetokens-task.replacetokens@3
             displayName: 'Replace tokens in **/*.tf'
@@ -123,28 +124,27 @@ stages:
           #   inputs:
           #     terraformVersion: 0.12.7
 
-          - script: 'which terraform'
-            displayName: 'Checking which terraform'
-
-          - task: TerraformTaskV1@0
+- stage: Deploy
+  jobs:
+    # track deployments on the environment
+  - deployment: 'Deploy'
+    pool:
+      vmImage: $(WinPoolName)
+    # creates an environment if it doesn’t exist
+    environment: 'dev'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - task: Terraform@2
+            displayName: 'Terraform Init'
             inputs:
-              provider: 'azurerm'
-              command: 'init'
-              workingDirectory: '$(Pipeline.Workspace)/Drop/Terraform'
-              backendServiceArm: '$(serviceConnection)'
-              backendAzureRmResourceGroupName: '$(terraformstoragerg)'
-              backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
-              backendAzureRmContainerName: '$(tfstoragecontainername)'
-              backendAzureRmKey: '$(tf_key)'
-
-          # - task: Terraform@2
-          #   displayName: 'Terraform Init'
-          #   inputs:
-          #     TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-          #     Arguments: 'init'
-          #     InstallTerraform: true
-          #     UseAzureSub: true
-          #     ConnectedServiceNameARM: $(serviceConnection)
+              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+              Arguments: 'init'
+              InstallTerraform: true
+              UseAzureSub: true
+              ConnectedServiceNameARM: $(serviceConnection)
 
           # - task: Terraform@2
           #   displayName: 'Terraform Plan'
@@ -155,14 +155,14 @@ stages:
           #     UseAzureSub: true
           #     ConnectedServiceNameARM: $(serviceConnection)
 
-          # - task: Terraform@2
-          #   displayName: 'Terraform Apply -auto-approve'
-          #   inputs:
-          #     TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
-          #     Arguments: 'apply -auto-approve'
-          #     InstallTerraform: true
-          #     UseAzureSub: true
-          #     ConnectedServiceNameARM: $(serviceConnection)
+          - task: Terraform@2
+            displayName: 'Terraform Apply -auto-approve'
+            inputs:
+              TemplatePath: '$(Pipeline.Workspace)/Drop/Terraform'
+              Arguments: 'apply -auto-approve'
+              InstallTerraform: true
+              UseAzureSub: true
+              ConnectedServiceNameARM: $(serviceConnection)
 
           - task: KubectlInstaller@0
             displayName: 'Install Kubectl latest'
