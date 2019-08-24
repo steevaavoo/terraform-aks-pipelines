@@ -101,7 +101,7 @@ stages:
             inputs:
               azureSubscription: '$(serviceConnection)'
               scriptLocation: 'scriptPath'
-              scriptPath: '$(Pipeline.Workspace)/Drop/scripts/Create-TerraformStateStorage.bat'
+              scriptPath: '$(Pipeline.Workspace)/Drop/scripts/Create-TerraformStateStorage.sh'
 
           - task: AzurePowerShell@4
             displayName: 'Get TF State Storage Key'
