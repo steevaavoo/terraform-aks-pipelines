@@ -131,6 +131,9 @@ stages:
       vmImage: $(WinPoolName)
     # creates an environment if it doesn’t exist
     steps:
+    - download: current
+      artifact: drop
+
     - task: Terraform@2
       displayName: 'Terraform Init'
       inputs:
