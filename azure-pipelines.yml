@@ -139,6 +139,8 @@ stages:
     - download: current
       artifact: drop
 
+    - script: 'echo "storagekey: [$(storagekey)]"'
+
     - task: Terraform@2
       displayName: 'Terraform Init'
       inputs:
