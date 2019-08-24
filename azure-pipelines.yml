@@ -28,7 +28,7 @@ variables:
 - name: LinuxPoolName
   value: 'ubuntu-16.04'
 - name: WinPoolName
-  value: 'windows-2019	'
+  value: 'windows-2019'
 - name: terraformstoragerg
   value: 'terraformrg'
 - name: terraformstorageaccount
