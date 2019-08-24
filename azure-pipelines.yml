@@ -126,10 +126,10 @@ stages:
           - script: 'which terraform'
             displayName: 'Checking which terraform'
 
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV1@0
-            displayName: 'Terraform Init'
+          - task: TerraformTaskV1@0
             inputs:
-              provider: azurerm
+              provider: 'azurerm'
+              command: 'init'
               workingDirectory: '$(Pipeline.Workspace)/Drop/Terraform'
               backendServiceArm: '$(serviceConnection)'
               backendAzureRmResourceGroupName: '$(terraformstoragerg)'
