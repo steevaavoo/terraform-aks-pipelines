@@ -53,7 +53,7 @@ variables:
 - name: resource_location
   value: 'eastus'
 - name: system.debug
-  value: 'true'
+  value: 'false'
 
 stages:
 - stage: Build
