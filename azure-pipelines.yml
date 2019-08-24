@@ -112,14 +112,6 @@ stages:
         scriptLocation: 'scriptPath'
         scriptPath: '$(Pipeline.Workspace)/drop/scripts/Create-TerraformStateStorage.sh'
 
-    - task: AzurePowerShell@4
-      displayName: 'Get TF State Storage Key'
-      inputs:
-        azureSubscription: '$(serviceConnection)'
-        ScriptType: 'FilePath'
-        ScriptPath: '$(Pipeline.Workspace)/drop/scripts/Get-StorageKey.ps1'
-        azurePowerShellVersion: 'latestVersion'
-
 - stage: Deploy
   jobs:
     # track deployments on the environment
@@ -130,6 +122,14 @@ stages:
     steps:
     - download: current
       artifact: drop
+
+    - task: AzurePowerShell@4
+      displayName: 'Get TF State Storage Key'
+      inputs:
+        azureSubscription: '$(serviceConnection)'
+        ScriptType: 'FilePath'
+        ScriptPath: '$(Pipeline.Workspace)/drop/scripts/Get-StorageKey.ps1'
+        azurePowerShellVersion: 'latestVersion'
 
     - task: qetza.replacetokens.replacetokens-task.replacetokens@3
       displayName: 'Replace TF State StorageKey'
