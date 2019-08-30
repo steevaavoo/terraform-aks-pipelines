@@ -207,7 +207,7 @@ stages:
       displayName: 'PowerShell Script: Update DNS A Record'
       inputs:
         targetType: filePath
-        filePath: './$(Pipeline.Workspace)/drop/scripts/Update-Dns.ps1'
+        filePath: '$(Pipeline.Workspace)/drop/scripts/Update-Dns.ps1'
         arguments: '-DomainName $(dns_domain_name) -IPAddress $(dns_ip_address) -ApiKey $(dns_api_key) -ApiSecret $(dns_api_secret)'
         pwsh: true
 
