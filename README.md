@@ -8,7 +8,7 @@
 - [x] Change main build agent to Linux
 - [x] Add a stage for Terraform tasks to run specifically with Windows agent
 - [ ] Deploy the same App using Helm
-- [ ] Update an A record with the address of the App (see Adam's example)
+- [ ] Update an A record with the address of the App (see Adam's example) bakers-foundry.co.uk
 
 ## Method
 
