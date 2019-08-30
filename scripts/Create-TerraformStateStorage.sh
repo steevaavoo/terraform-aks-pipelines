@@ -10,7 +10,7 @@ echo "##vso[task.setprogress value=25;]FINISHED: Creating Resource Group."
 
 # Storage Account
 echo "STARTED: Creating Storage Account..."
-az storage account create --name $TERRAFORMSTORAGEACCOUNT --resource-group $TERRAFORMSTORAGERG ^
+az storage account create --name $TERRAFORMSTORAGEACCOUNT --resource-group $TERRAFORMSTORAGERG \
 --location $RESOURCE_LOCATION --sku Standard_LRS
 echo "##vso[task.setprogress value=50;]FINISHED: Creating Storage Account."
 
