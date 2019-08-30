@@ -211,6 +211,8 @@ stages:
         arguments: '-DomainName $(dns_domain_name) -IPAddress $(dns_ip_address) -ApiKey $(dns_api_key) -ApiSecret $(dns_api_secret)'
         pwsh: true
 
+- stage: Gate
+  jobs:
   - job: 'Gate'
     steps:
     - task: InvokeRESTAPI@1
