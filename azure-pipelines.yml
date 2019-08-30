@@ -214,6 +214,7 @@ stages:
 - stage: Gate
   jobs:
   - job: 'Gate'
+    pool: server
     steps:
     - task: InvokeRESTAPI@1
       displayName: 'Invoke REST API: GET'
