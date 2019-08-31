@@ -224,8 +224,8 @@ stages:
       displayName: 'PowerShell Script: Check for nginx'
       inputs:
         targetType: filePath
-        filePath: '$(Pipeline.Workspace)/drop/scripts/Get-ServerResponse.ps1'
-        arguments: '-DomainName $(dns_domain_name) -HeaderString "nginx" -RequestTimeoutSec 2'
+        filePath: '$(Pipeline.Workspace)/drop/scripts/Wait-ServerResponse.ps1'
+        arguments: '-DomainName $(dns_domain_name) -HeaderString "nginx" -RequestTimeoutSec 2 -TaskTimeoutSec 900'
         pwsh: true
 
 # - stage: Post
