@@ -220,17 +220,25 @@ stages:
         arguments: '-DomainName $(dns_domain_name) -IPAddress $(dns_ip_address) -ApiKey $(dns_api_key) -ApiSecret $(dns_api_secret)'
         pwsh: true
 
+    - task: PowerShell@2
+      displayName: 'PowerShell Script: Check for nginx'
+      inputs:
+        targetType: filePath
+        filePath: '$(Pipeline.Workspace)/drop/scripts/Get-ServerResponse.ps1'
+        arguments: '-DomainName $(dns_domain_name) -HeaderString "nginx" -RequestTimeoutSec 2'
+        pwsh: true
+
 # - stage: Post
 #   jobs:
-  - job: 'PostDeploymentAPICheck'
-    pool: server
-    dependsOn: 'Deploy'
-    steps:
-    - task: InvokeRESTAPI@1
-      displayName: 'Invoke REST API: GET'
-      inputs:
-        connectionType: connectedServiceName
-        serviceConnection: '$(genericServiceConnection)'
-        method: 'GET'
-        headers: '{}'
-        waitForCompletion: 'false'
+  # - job: 'PostDeploymentAPICheck'
+  #   pool: server
+  #   dependsOn: 'Deploy'
+  #   steps:
+  #   - task: InvokeRESTAPI@1
+  #     displayName: 'Invoke REST API: GET'
+  #     inputs:
+  #       connectionType: connectedServiceName
+  #       serviceConnection: '$(genericServiceConnection)'
+  #       method: 'GET'
+  #       headers: '{}'
+  #       waitForCompletion: 'false'
