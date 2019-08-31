@@ -220,7 +220,7 @@ stages:
         arguments: '-DomainName $(dns_domain_name) -IPAddress $(dns_ip_address) -ApiKey $(dns_api_key) -ApiSecret $(dns_api_secret)'
         pwsh: true
 
-- stage: Post-Deployment
+- stage: Post
   jobs:
   - job: 'Invoke_REST_API_GET'
     pool: server
