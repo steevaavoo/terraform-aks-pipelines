@@ -229,7 +229,7 @@ stages:
     - task: InvokeRESTAPI@1
       displayName: 'Invoke REST API: GET'
       inputs:
-        connectionType: 'connectedServiceName'
+        connectionType: connectedServiceName
         serviceConnection: '$(genericServiceConnection)'
         method: 'GET'
         headers: '{}'
