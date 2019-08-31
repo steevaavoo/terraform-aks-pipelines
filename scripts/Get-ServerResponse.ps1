@@ -21,7 +21,7 @@ param (
 )
 
 $response = $null
-while (-not ($response.Headers.Server -eq $HeaderString)) {
+while (-not ($response.Headers.Server -match $HeaderString)) {
     Write-Output "Waiting for value [$HeaderString] in Response Headers Server..."
     $response = Invoke-WebRequest -Method Get -Uri $DomainName -TimeoutSec $RequestTimeoutSec
 }
