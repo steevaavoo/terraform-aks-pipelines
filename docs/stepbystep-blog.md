@@ -339,7 +339,7 @@ GO THROUGH A DOUBLE-CHECK OF THE SETTINGS TO MAKE SURE CI AND CD SETTINGS ARE RE
 In hosted resource-land, "time is money, people!" So if you want to quickly "nuke the site from orbit", as it were:
 
 ```powershell
-Connect-AzAccount
+# Connect-AzAccount
 Get-AzResourceGroup | Remove-AzResourceGroup -AsJob -Force
 Get-Job | Wait-Job
 ```
