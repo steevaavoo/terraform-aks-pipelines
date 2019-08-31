@@ -136,7 +136,7 @@ stages:
 
     # This calls a script to get the Terraform Storage Key and update the Pipeline variable with the result.
     # Since Pipeline variable defaults (as set at the top) are re-applied in each Stage, we need to run this script
-    # in the same Stage as the Token Replace task that apply to the TF files, or it will instead add the default,
+    # in the same Stage as the Token Replace task that applies to the TF files, or it will instead add the default,
     # 'willbefetchedbyscript' to the TF files, which will then be unable to access the storage, causing a fail.
     - task: AzurePowerShell@4
       displayName: 'Get TF State Storage Key'
@@ -220,10 +220,11 @@ stages:
         arguments: '-DomainName $(dns_domain_name) -IPAddress $(dns_ip_address) -ApiKey $(dns_api_key) -ApiSecret $(dns_api_secret)'
         pwsh: true
 
-- stage: Post
-  jobs:
-  - job: 'Invoke_REST_API_GET'
+# - stage: Post
+#   jobs:
+  - job: 'PostDeploymentAPICheck'
     pool: server
+    dependsOn: 'Deploy'
     steps:
     - task: InvokeRESTAPI@1
       displayName: 'Invoke REST API: GET'
@@ -232,4 +233,4 @@ stages:
         serviceConnection: '$(genericServiceConnection)'
         method: 'GET'
         headers: '{}'
-        waitForCompletion: 'true'
+        waitForCompletion: 'false'
