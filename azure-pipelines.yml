@@ -55,7 +55,7 @@ variables:
 - name: resource_location
   value: 'eastus'
 - name: system.debug
-  value: 'false'
+  value: 'true'
 - name: dns_domain_name
   value: 'bakers-foundry.co.uk'
 - name: dns_ip_address
@@ -228,17 +228,17 @@ stages:
         arguments: '-DomainName $(dns_domain_name) -HeaderString "nginx" -RequestTimeoutSec 2 -TaskTimeoutSec 900'
         pwsh: true
 
-- stage: Post
-  jobs:
-  - job: 'PostDeploymentAPICheck'
-    pool: server
-    # dependsOn: 'Deploy'
-    steps:
-    - task: InvokeRESTAPI@1
-      displayName: 'Invoke REST API: GET'
-      inputs:
-        connectionType: connectedServiceName
-        serviceConnection: '$(genericServiceConnection)'
-        method: 'GET'
-        headers: '{}'
-        waitForCompletion: 'false'
+# - stage: Post
+#   jobs:
+#   - job: 'PostDeploymentAPICheck'
+#     pool: server
+#     # dependsOn: 'Deploy'
+#     steps:
+#     - task: InvokeRESTAPI@1
+#       displayName: 'Invoke REST API: GET'
+#       inputs:
+#         connectionType: connectedServiceName
+#         serviceConnection: '$(genericServiceConnection)'
+#         method: 'GET'
+#         headers: '{}'
+#         waitForCompletion: 'false'
