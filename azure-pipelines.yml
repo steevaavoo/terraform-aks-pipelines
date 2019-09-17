@@ -55,7 +55,7 @@ variables:
 - name: resource_location
   value: 'eastus'
 - name: system.debug
-  value: 'false'
+  value: 'true'
 - name: dns_domain_name
   value: 'bakers-foundry.co.uk'
 - name: dns_ip_address
