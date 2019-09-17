@@ -232,7 +232,7 @@ stages:
   jobs:
   - job: 'PostDeploymentAPICheck'
     pool: server
-    dependsOn: 'Deploy'
+    # dependsOn: 'Deploy'
     steps:
     - task: InvokeRESTAPI@1
       displayName: 'Invoke REST API: GET'
