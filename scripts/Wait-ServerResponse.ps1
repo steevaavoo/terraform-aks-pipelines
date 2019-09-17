@@ -30,7 +30,14 @@ while (-not ($response.Headers.Server -match $HeaderString)) {
         exit 1
     } else {
         Write-Output "Waiting for value [$HeaderString] in Response Headers Server..."
-        $response = Invoke-WebRequest -Method Get -Uri $DomainName -TimeoutSec $RequestTimeoutSec
+
+        $response = try {
+            (Invoke-WebRequest -Method Get -Uri $DomainName -TimeoutSec $RequestTimeoutSec -ErrorAction Stop).BaseResponse
+        } catch [System.Net.WebException] {
+            Write-Verbose "An exception was caught: $($_.Exception.Message)"
+            $_.Exception.Response
+        }
+
         Start-Sleep -Seconds $RetryIntervalSec
     }
 }
