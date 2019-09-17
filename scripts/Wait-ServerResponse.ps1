@@ -29,7 +29,7 @@ while (-not ($response.Headers.Server -match $HeaderString)) {
         Write-Output "##vso[task.logissue type=error]Elapsed task time of [$($timer.Elapsed.TotalSeconds)] has exceeded timeout of [$TimeoutSeconds]"
         exit 1
     } else {
-        Write-Output "Waiting for value [$HeaderString] in Response Headers Server..."
+        Write-Output "Waiting for value [$HeaderString] in Response Headers Server... Current wait time [$($timer.Elapsed.TotalSeconds)]"
 
         $response = try {
             (Invoke-WebRequest -Method Get -Uri $DomainName -TimeoutSec $RequestTimeoutSec -ErrorAction Stop).BaseResponse
