@@ -17,7 +17,8 @@ param (
     $DomainName,
     $HeaderString,
     $TaskTimeoutSec = 900,
-    $RetryIntervalSec = 5
+    $RetryIntervalSec = 10,
+    $RequestTimeoutSec = 30
 )
 
 $timer = [Diagnostics.Stopwatch]::StartNew()

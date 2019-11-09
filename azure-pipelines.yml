@@ -225,20 +225,5 @@ stages:
       inputs:
         targetType: filePath
         filePath: '$(Pipeline.Workspace)/drop/scripts/Wait-ServerResponse.ps1'
-        arguments: '-DomainName $(dns_domain_name) -HeaderString "nginx" -RetryIntervalSec 2 -TaskTimeoutSec 900'
+        arguments: '-DomainName $(dns_domain_name) -HeaderString "nginx"'
         pwsh: true
-
-# - stage: Post
-#   jobs:
-#   - job: 'PostDeploymentAPICheck'
-#     pool: server
-#     # dependsOn: 'Deploy'
-#     steps:
-#     - task: InvokeRESTAPI@1
-#       displayName: 'Invoke REST API: GET'
-#       inputs:
-#         connectionType: connectedServiceName
-#         serviceConnection: '$(genericServiceConnection)'
-#         method: 'GET'
-#         headers: '{}'
-#         waitForCompletion: 'false'
