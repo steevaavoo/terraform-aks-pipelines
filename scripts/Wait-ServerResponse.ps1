@@ -16,14 +16,13 @@
 param (
     $DomainName,
     $HeaderString,
-    $RequestTimeoutSec,
-    $TaskTimeoutSec,
+    $TaskTimeoutSec = 900,
     $RetryIntervalSec = 5
 )
 
 $timer = [Diagnostics.Stopwatch]::StartNew()
 
-while (-not ($response.Headers.Server -match $HeaderString)) {
+do {
 
     if ($timer.Elapsed.TotalSeconds -gt $TaskTimeoutSec) {
         Write-Output "##vso[task.logissue type=error]Elapsed task time of [$($timer.Elapsed.TotalSeconds)] has exceeded timeout of [$TimeoutSeconds]"
@@ -39,6 +38,6 @@ while (-not ($response.Headers.Server -match $HeaderString)) {
 
         Start-Sleep -Seconds $RetryIntervalSec
     }
-}
+} while (-not ($response.Headers.Server -match $HeaderString))
 
 Write-Output "Found value [$HeaderString] in Response Headers Server - test succeeded"
