@@ -1,12 +1,18 @@
+[![Build Status](https://dev.azure.com/stevembaker/terraform-aks-yaml-pipelines/_apis/build/status/steevaavoo.terraform-aks-pipelines?branchName=develop)](https://dev.azure.com/stevembaker/terraform-aks-yaml-pipelines/_build/latest?definitionId=7&branchName=develop)
+
 # Goals
 
-1. Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
-1. Deploy an App (nginxdemo) through Azure Pipelines
+- [x] Get an Azure K8s Cluster set up using Terraform through Azure Pipelines
+- [x] Deploy an App (nginxdemo) through Azure Pipelines
+- [x] Prevent changes to notes (and readme.md) from triggering builds
+- [x] Change main build agent to Linux
+- [x] Add a stage for Terraform tasks to run specifically with Windows agent
+- [ ] Deploy the same App using Helm
+- [x] Update an A record with the address of the App (see Adam's example) bakers-foundry.co.uk
 
 ## Method
 
 I'll follow this [tutorial](https://www.azuredevopslabs.com/labs/vstsextend/terraform/)
 get familiar with the Terraform Pipeline process, then retrofit it to serve my above purposes.
 
-Notes will be kept in a separate file and will follow my rather random way of thinking, so
-please forgive any meandering nonsense...
+Notes will be kept in a separate file.

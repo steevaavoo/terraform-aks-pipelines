@@ -3,39 +3,39 @@ terraform {
   required_version = ">= 0.11"
   backend "azurerm" {
     storage_account_name = "__terraformstorageaccount__"
-    container_name       = "terraform"
-    key                  = "terraform.tfstate"
-    access_key           = "__storagekey__"
+    container_name       = "__tf_container_name__"
+    key                  = "__tf_key__"
+    access_key           = "##storagekey##"
   }
 }
 resource "azurerm_resource_group" "stvrg" {
-  name     = "__aksrgname__"
-  location = "East US"
+  name     = "${var.azure_resourcegroup_name}"
+  location = "${var.location}"
 }
 resource "azurerm_container_registry" "stvacr" {
-  name                = "stvcontReg1"
+  name                = "${var.container_registry_name}"
   resource_group_name = "${azurerm_resource_group.stvrg.name}"
   location            = "${azurerm_resource_group.stvrg.location}"
-  admin_enabled       = false
-  sku                 = "Basic"
+  admin_enabled       = "${var.acr_admin_enabled}"
+  sku                 = "${var.acr_sku}"
 }
 
 resource "azurerm_kubernetes_cluster" "stvaks" {
-  name                = "__aksclustername__"
+  name                = "${var.azurerm_kubernetes_cluster_name}"
   location            = "${azurerm_resource_group.stvrg.location}"
   resource_group_name = "${azurerm_resource_group.stvrg.name}"
-  dns_prefix          = "stvagent1"
+  dns_prefix          = "${var.aks_dns_prefix}"
 
   agent_pool_profile {
-    name            = "default"
-    count           = 2
-    vm_size         = "Standard_D1_v2"
-    os_type         = "Linux"
-    os_disk_size_gb = 30
+    name            = "${var.agent_pool_profile_name}"
+    count           = "${var.agent_pool_count}"
+    vm_size         = "${var.agent_pool_profile_vm_size}"
+    os_type         = "${var.agent_pool_profile_os_type}"
+    os_disk_size_gb = "${var.agent_pool_profile_disk_size_gb}"
   }
   service_principal {
-    client_id     = "__clientid__"
-    client_secret = "__clientsecret__"
+    client_id     = "${var.service_principal_client_id}"
+    client_secret = "${var.service_principal_client_secret}"
   }
 
   tags = {
