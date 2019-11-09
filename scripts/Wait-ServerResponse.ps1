@@ -23,10 +23,9 @@ param (
 $timer = [Diagnostics.Stopwatch]::StartNew()
 
 do {
-
     if ($timer.Elapsed.TotalSeconds -gt $TaskTimeoutSec) {
         Write-Output "##vso[task.logissue type=error]Elapsed task time of [$($timer.Elapsed.TotalSeconds)] has exceeded timeout of [$TimeoutSeconds]"
-        exit 1
+        throw "Elapsed task time of [$($timer.Elapsed.TotalSeconds)] has exceeded timeout of [$TimeoutSeconds] - exiting."
     } else {
         Write-Output "##vso[task.logissue type=warning]Waiting for value [$HeaderString] in Response Headers Server...[$($timer.Elapsed.Minutes)m$($timer.Elapsed.Seconds)s elapsed]"
         $response = try {
